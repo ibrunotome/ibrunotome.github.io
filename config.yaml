@@ -1,0 +1,56 @@
+baseURL: "https://example.com"
+title: Bruno Tomé
+theme: hugo-notepadium
+copyright: ©2020 Bruno Tomé.
+languageCode: pt
+defaultContentLanguage: pt
+hasCJKLanguage: true
+enableRobotsTXT: true
+disqusShortname: ibrunotome
+
+languages:
+  pt:
+    contentDir: content/pt
+    languageName: Portuguese
+    weight: 10
+  en:
+    contentDir: content/en
+    languageName: Inglês
+    weight: 20
+
+markup:
+  highlight:
+    codeFences: true
+    noClasses: false
+  goldmark:
+    renderer:
+      unsafe: true
+
+params:
+  style: dark
+  dateFormat: "02 Jan, 2006"
+  readingTime: true
+  logo: ""
+  assets:
+    css:
+      - css/fonts.css
+  comments:
+    enable: true
+  math:
+    enable: false
+    use: katex
+  syntax:
+    use: none
+    theme: xcode
+    darkTheme: xcode-dark
+  nav:
+    showCategories: true
+    showTags: true
+    custom:
+      - title: Sobre
+        url: /sobre
+      - title: GitHub
+        url: "https://github.com/ibrunotome"
+
+permalinks:
+  posts: "/:title"
