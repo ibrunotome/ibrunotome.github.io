@@ -1,6 +1,6 @@
 ---
-title: "Usando Kubernetes em Produção"
-url: usando-kubernetes-em-producao
+title: "Multiple Applications in One Kubernetes Cluster"
+url: multiple-applications-in-one-kubernetes-cluster
 date: "2020-03-29T13:29:17-03:00"
 lastmod: "2020-03-29T13:29:17-03:00"
 tags: []
@@ -14,6 +14,6 @@ justify: false
 single: false
 license: ""
 draft: true
-language: pt
-translationKey: "using-kubernetes-in-production"
+translationKey: "multiple-applications-in-one-kubernetes-cluster"
 ---
+
