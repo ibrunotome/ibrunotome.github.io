@@ -99,6 +99,65 @@ Caso você ainda não tenha containerizado sua aplicação, prepare-a de modo qu
 
 ## Preparando os manifestos
 
+Aqui vem o primeiro baque pra quem era acostumado a subir o ambiente de produção inteiro com um único arquivo
+docker-compose.yaml 🙃
+
+<p align="center">
+  <img src="/k8s-manifests.png" width="400px">
+</p>
+
+Mostrarei o propósito de cada arquivo. Veja detalhes e conceitos do Kubernetes em sua [documentação](https://kubernetes.io/docs/concepts/).
+
+A infraestrutura da aplicação é definida como código, os controllers do Kubernetes checam em loop `se o estado atual da aplicação é igual ao estado definido via código`, e caso não seja, aplica as modificações necessárias.
+
+Os manifestos podem ser definidos em YAML ou JSON, as extensões `.yaml`, `.yml` e `.json` são aceitas. Coloco todos no mesmo diretório para facilitar o deploy com o comando `kubectl apply -f k8s/`.
+
+###### 01-namespace.yaml
+
+```yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: yourapp1
+  labels:
+    name: yourapp1
+
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: resource-quota
+  namespace: yourapp1
+spec:
+  hard:
+    requests.cpu: 100m
+    requests.memory: 512Mi
+    limits.cpu: 200m
+    limits.memory: 1024Mi
+```
+
+Neste arquivo defino o [Namespace](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/) da aplicação. Com namespaces é possível definir o escopo das aplicações. Assim é possível executar várias aplicações diferentes no mesmo cluster sem que interfiram uma na outra (a comunicação entre namespaces ainda é possível através de serviços expostos como mostrarei). Outro exemplo da utilidade de namespaces é separar ambientes de `staging` e `production`. Por padrão, caso
+namespaces não sejam definidos, os deploys são realizados no namespace `default`.
+
+No mesmo arquivo defino um deploy do tipo [Resource Quota](https://kubernetes.io/docs/concepts/policy/resource-quotas/), nele é possível definir os recursos e limites de recursos solicitados pelo namespace. No exemplo, defino que:
+
+- `requests.cpu: 100m` - todos os componentes do namespace podem requisitar (somados) no máximo 100 millicores de cpu (1vCPU = 1000m, valores de cpu podem ser definidos de 1m a 1000m).
+
+- `requests.memory: 512Mi` - todos os componentes do namespace podem requisitar (somados) no máximo 512Mi de memória (1 Mebibyte (MiB) = (1024)^2 bytes = 1048576 bytes).
+
+- `limits.cpu: 200m` - todos os componentes do namespace (apesar de requisitar 100m de cpu definidos anteriormente)
+  podem utilizar o máximo 200 millicores de cpu.
+
+- `limits.memory: 1024Mi` - todos os componentes do namespace (apesar de requisitar 512Mi de memória definidos anteriormente) podem utilizar no máximo 1024Mi de memória.
+
+Quando os limites de cpu definidos são atingidos, a aplicação começa a sofrer `throttled` de cpu, ou seja, sua performance é afetada.
+
+Quando os limites de memória são atingidos, não é possível "comprimir" a memória como é feito com cpu, e seu [Pod](https://kubernetes.io/docs/concepts/workloads/pods/pod-overview/) é terminado.
+
+Quando um deploy de uma nova versão da sua aplicação é feita, caso o limite de cpu ou memória seja excedido, os pods não seram executados e ficarão com o estado [Evicted](https://kubernetes.io/docs/tasks/administer-cluster/out-of-resource/#eviction-policy).
+
+A definição de ResourceQuota para um namespace é opcional, porém garante que uma aplicação não consuma recursos demasiadamente.
+
 ## Criando o cluster Kubernetes
 
 ## Realizando o deploy dos manifestos
