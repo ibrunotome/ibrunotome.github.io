@@ -158,6 +158,66 @@ Quando um deploy de uma nova versão da sua aplicação é feita, caso o limite 
 
 A definição de ResourceQuota para um namespace é opcional, porém garante que uma aplicação não consuma recursos demasiadamente.
 
+###### 02-nfs-server-deployment.yaml
+
+```yaml
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: nfs-server
+  namespace: yourapp1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: nfs-server
+  template:
+    metadata:
+      labels:
+        name: nfs-server
+    spec:
+      containers:
+        - name: nfs-server
+          image: gcr.io/google_containers/volume-nfs:latest
+          ports:
+            - name: nfs
+              containerPort: 2049
+            - name: mountd
+              containerPort: 20048
+            - name: rpcbind
+              containerPort: 111
+          securityContext:
+            privileged: true
+          resources:
+            requests:
+              cpu: 1m
+              memory: 168Mi
+            limits:
+              cpu: 2m
+              memory: 192Mi
+          volumeMounts:
+            - name: data
+              mountPath: /exports
+
+      volumes:
+        - name: data
+          gcePersistentDisk:
+            pdName: yourapp1-nfs-disk
+            fsType: ext4
+```
+
+Neste arquivo defino o deployment de um volume NFS, já que o padrão [GCEPersistentDisk](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes) do GKE não suporta o tipo de acesso `ReadWriteMany` para ser lido e escrito por vários nodes ao mesmo tempo.
+
+Este volume será usado para persistir os dados do redis e também as páginas estáticas que são geradas a partir do container app e compartilhadas com o container nginx.
+
+Alguns detalhes do arquivo:
+
+- O namespace deve ser o mesmo definido anteriormente para que o escopo do deploy seja o mesmo namespace.
+- Ele possui apenas uma réplica.
+- As requests e limits de cpu desse deployment podem ser bem pequenas (mostro mais a frente como analisar).
+- O disco definido em `pdName` nos volumes deve ser criado anteriormente com `gcloud compute disks create --size=1GB --zone=us-central1-a --type=pd-ssd yourapp1-nfs-disk`.
+- O volume é montado no path /exports do disco.
+
 ## Criando o cluster Kubernetes
 
 ## Realizando o deploy dos manifestos
