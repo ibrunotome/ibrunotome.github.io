@@ -84,7 +84,18 @@ disponibilidade são só alguns dos exemplos do que teríamos que manter caso op
 Dentre as opções de cluster citadas anteriormente (Swarm e Kubernetes), nosso cloud provider disponibiliza apenas o serviço
 de gerenciamento de Kubernetes (na minha opinião, um dos melhores e mais robustos, talvez porque eles projetaram o Kubernetes e a maioria dos seus serviços rodam no mesmo). O serviço é o Google Kubernetes Engine (GKE) e [oferece um plano gratuito para um cluster zonal](https://cloud.google.com/kubernetes-engine#pricing), atendendo nossas necessidades.
 
+Os custos previstos:
+
+- 2 VMs [e2-standard-2](https://cloud.google.com/blog/products/compute/google-compute-engine-gets-new-e2-vm-machine-types) com 2vCPU e 8GB de ram cada, totalizando um cluster com 4vCPU e 16GB de RAM. Com um contrato de [desconto por uso contínuo](https://cloud.google.com/compute/docs/instances/signing-up-committed-use-discounts) de 3 anos, a previsão mensal de custo é de aproximadamente `45 USD`.
+- Loadbalancer http/htpts, 1 até 5 regras de forwarding custam aproximadamente `18 USD`.
+
+Bancos de dados, buckets e outros serviços gerenciados do google não entram na conta pois não foram alterados e seus custos continuaram os mesmos.
+
 ## Preparando os containers
+
+Como dito no primeiro tópico, as aplicações já rodavam containerizadas. Um container dedicado a aplicação web, um para as queues, um para a execução de schedules, um container redis e um nginx. O container certbot foi descartado pois foi adotada outra abordagem para gerenciamento dos certificados SSL.
+
+Caso você ainda não tenha containerizado sua aplicação, prepare-a de modo que respeite o [Twelve-Factor App](https://12factor.net).
 
 ## Preparando os manifestos
 
