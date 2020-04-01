@@ -47,9 +47,9 @@ algumas funções que foram desacopladas de uma api e hoje são executadas a par
 
 Três dessas aplicações principais rodavam individualmente (uma aplicação por VM) em VMs do tipo n1-standard-1 (1vCPU e 3,75GB de RAM). Todas as aplicações containerizadas e o deploy em produção realizado por um simples _docker-compose up -d_
 
-Mesmo com todo o processo de deploy automatizado e sem gerar dores de cabeça, `a má utilização dos recursos` me incomodava:
+Mesmo com todo o processo de deploy automatizado, sem gerar dores de cabeça, `a má utilização dos recursos` me incomodava:
 
-- Uma das aplicações (de gestão interna, ou seja, pouquíssimas pessoas com acesso) consumia no máximo 10% da CPU somando
+- Uma das aplicações (painel de administração, pouquíssimas pessoas com acesso) consumia no máximo 10% da CPU somando
   todos os containers (nginx, app, queue, redis, certbot) e no máximo 2 dos 3,75GB de RAM.
 - Uma segunda aplicação com métricas bem parecidas com as de cima.
 - Uma terceira aplicação, com situação oposta as de cima, com métricas recomendando o upgrade da VM para pelo menos 6GB
@@ -74,10 +74,15 @@ Mesmo com todo o processo de deploy automatizado e sem gerar dores de cabeça, `
 Uma solução viável para otimização da utilização de recursos seria executar as aplicações num cluster, possuindo assim o
 controle de quanto hardware dedicar a cada aplicação e abrindo possibilidade para escalabilidade da terceira aplicação
 mencionada anteriormente. Para orquestrar os contâiners no cluster, dentre as opções disponíveis eu teria que escolher
-bem entre duas: Swarm ou Kubernetes, pois já possuía um pouco de conhecimento prévio de ambas as ferramentas após
-realizar um treinamento da [LinuxTips](https://www.linuxtips.io) ❤️
+bem entre duas: Swarm ou Kubernetes, pois possuía um pouco de conhecimento prévio de ambas as ferramentas.
 
 ## Por que Kubernetes?
+
+Gerenciar um cluster é difícil, aplicar patches de segurança, auto reparo, auto upgrade, auto scaling e garantir
+disponibilidade são só alguns dos exemplos do que teríamos que manter caso optássemos por gerenciá-lo.
+
+Dentre as opções de cluster citadas anteriormente (Swarm e Kubernetes), nosso cloud provider disponibiliza apenas o serviço
+de gerenciamento de Kubernetes (na minha opinião, um dos melhores e mais robustos, talvez porque eles projetaram o Kubernetes e a maioria dos seus serviços rodam no mesmo). O serviço é o Google Kubernetes Engine (GKE) e [oferece um plano gratuito para um cluster zonal](https://cloud.google.com/kubernetes-engine#pricing), atendendo nossas necessidades.
 
 ## Preparando os containers
 
