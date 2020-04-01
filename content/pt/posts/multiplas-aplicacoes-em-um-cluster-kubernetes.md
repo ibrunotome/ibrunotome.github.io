@@ -215,8 +215,36 @@ Alguns detalhes do arquivo:
 - O namespace deve ser o mesmo definido anteriormente para que o escopo do deploy seja o mesmo namespace.
 - Ele possui apenas uma réplica.
 - As requests e limits de cpu desse deployment podem ser bem pequenas (mostro mais a frente como analisar).
-- O disco definido em `pdName` nos volumes deve ser criado anteriormente com `gcloud compute disks create --size=1GB --zone=us-central1-a --type=pd-ssd yourapp1-nfs-disk`.
 - O volume é montado no path /exports do disco.
+- O disco definido em `pdName` nos volumes deve ser criado anteriormente com:
+
+```bash
+gcloud compute disks create --size=1GB --zone=us-central1-a --type=pd-ssd yourapp1-nfs-disk
+```
+
+###### 03-nfs-server-service.yaml
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: nfs-server
+  namespace: yourapp1
+spec:
+  ports:
+    - name: nfs
+      port: 2049
+    - name: mountd
+      port: 20048
+    - name: rpcbind
+      port: 111
+  selector:
+    name: nfs-server
+```
+
+O service acima é o responsável por [expor o deployment criado anteriormente para ser acessado pelos outros pods](https://kubernetes.io/docs/concepts/services-networking/service/). O serviço é exposto apenas para outros pods, e não para a internet.
+
+Lembre-se de definir o `selector` do service com o mesmo valor definido nas `labels` do selector no deployment.
 
 ## Criando o cluster Kubernetes
 
