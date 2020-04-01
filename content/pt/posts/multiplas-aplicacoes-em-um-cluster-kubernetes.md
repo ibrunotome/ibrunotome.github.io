@@ -246,6 +246,49 @@ O service acima é o responsável por [expor o deployment criado anteriormente p
 
 Lembre-se de definir o `selector` do service com o mesmo valor definido nas `labels` do selector no deployment.
 
+###### 04-redis-statefulset.yaml
+
+```yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redis
+  namespace: yourapp1
+spec:
+  serviceName: redis
+  selector:
+    matchLabels:
+      name: redis
+  template:
+    metadata:
+      name: redis
+      labels:
+        name: redis
+    spec:
+      containers:
+        - name: redis
+          image: redis:5.0.5-alpine
+          ports:
+            - containerPort: 6379
+          resources:
+            requests:
+              cpu: 5m
+              memory: 14Mi
+            limits:
+              cpu: 5m
+              memory: 16Mi
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: data
+          nfs:
+            server: nfs-server.yourapp1.svc.cluster.local
+            path: "/redis/data"
+```
+
+O deploy do redis é do tipo [StatefulSet](https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/), o volume pode acessar diretamente o serviço deployado anteriormente via `<service>`.`<namespace>`.svc.cluster.local.
+
 ## Criando o cluster Kubernetes
 
 ## Realizando o deploy dos manifestos
