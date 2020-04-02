@@ -1027,6 +1027,21 @@ No processo de deploy, quando o arquivo [16-managedcerts.yaml](#16-managedcertsy
 
 ## Realizando o deploy dos manifestos
 
+O deploy pode ser realizado por arquivo:
+
+```bash
+kubectl apply -f 01-namespace.yaml
+kubectl apply -f 02-nfs-server-deployment.yaml
+```
+
+Ou todos os arquivos da pasta
+
+```bash
+kubectl apply -f k8s/
+```
+
+O mesmo se aplica para o delete com o `kubectl delete`
+
 ## Automatizando o processo de testes e deploy com um pipeline de CI/CD
 
 ## Monitorando o cluster com Kontena Lens e métricas Prometheus
