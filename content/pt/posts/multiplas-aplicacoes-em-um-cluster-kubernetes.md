@@ -441,6 +441,34 @@ No primeiro container `app` temos:
 
 No sidecar container `cloudsql-proxy` fazemos a autenticação com o uso de um secret que também mostro como criá-la no tópico [Automatizando o processo de teste e deploy com um pipeline CI/CD](#automatizando-o-processo-de-testes-e-deploy-com-um-pipeline-de-cicd).
 
+###### 07-app-hpa.yaml
+
+```yaml
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: app
+  namespace: yourapp1
+spec:
+  maxReplicas: 3
+  minReplicas: 1
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: app
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        targetAverageUtilization: 90
+    - type: Resource
+      resource:
+        name: memory
+        targetAverageUtilization: 90
+```
+
+O [Horizontal Pod Autoscaler (HPA)](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/) escala automaticamente o número de pods do nosso deployment. No exemplo em 06-app-deployment.yaml, nosso deployment foi feito com duas réplicas, o HPA acima consegue irá escalar esse deployment para 1 ou 3 réplicas baseado na média de utilização de cpu e memória do deployment.
+
 ## Criando o cluster Kubernetes
 
 ## Realizando o deploy dos manifestos
