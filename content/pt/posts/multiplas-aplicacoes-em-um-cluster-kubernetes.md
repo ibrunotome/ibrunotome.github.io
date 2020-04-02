@@ -39,6 +39,7 @@ Tópicos:
 - [Adicionando certificados SSL auto gerenciados](#adicionando-certificados-ssl-auto-gerenciados)
 - [Automatizando o processo de teste e deploy com um pipeline CI/CD](#automatizando-o-processo-de-testes-e-deploy-com-um-pipeline-de-cicd)
 - [Monitorando o cluster com Kontena Lens e métricas Prometheus](#monitorando-o-cluster-com-kontena-lens-e-metricas-prometheus)
+- [Realizando o deploy de outras aplicações](#realizando-o-deploy-de-outras-aplicações)
 - [Problemas identificados](#problemas-identificados)
 - [Próximos passos](#proximos-passos)
 
@@ -154,7 +155,7 @@ Aqui vem o primeiro baque pra quem era acostumado a subir o ambiente de produç�
 docker-compose.yaml 🙃
 
 <p align="center">
-  <img src="/k8s-manifests.png" width="400px">
+  <img src="/k8s-first-application-manifests.png" width="400px">
 </p>
 
 Mostrarei o propósito de cada arquivo. Veja detalhes e conceitos do Kubernetes em sua [documentação](https://kubernetes.io/docs/concepts/).
@@ -1276,6 +1277,8 @@ Não vou entrar em detalhes sobre o processo de CI em `cloudbuild.ci.yaml` pois 
 - O deploy dos manifestos é realizado.
 - Os assets da aplicação são copiados para um bucket.
 
+> Dica: Caso queira que um commit não passe pelo processo de CI/CD, adicione `[skip cd]` à mensagem de commit.
+
 ## Monitorando o cluster com Kontena Lens e métricas Prometheus
 
 Usando a api do kubernetes é possível obter vários dados para monitorar o cluster, porém para uma visão gráfica geral de todos os namespaces utilizo o [Kontena Lens](https://k8slens.dev), uma ferramenta grátis e opensource:
@@ -1285,6 +1288,66 @@ Usando a api do kubernetes é possível obter vários dados para monitorar o clu
 Após instalá-lo e conectá-lo ao cluster, clique com o botão direito no ícone do cluster e habilite as métricas prometheus.
 
 Analise ao longo do tempo se as `requests` e os `limits` definidos nos deployments estão sendo suficientes ou até mesmo se estão desperdiçando recurso e redefina-os caso necessário.
+
+## Realizando o deploy de outras aplicações
+
+O processo de deploy das outras aplicações é o mesmo, o namespace é diferente, mas os conceitos são os mesmos. Como um rápido exemplo, a quinta aplicação mencionada no início (executada no cloud.run), desta vez com um container apache:
+
+<p align="center">
+  <img src="/k8s-second-application-manifests.png" width="400px">
+</p>
+
+Exemplo do app-deployment:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app
+  namespace: yourapp2
+  labels:
+    name: app
+  annotations:
+    secret.reloader.stakater.com/reload: "env"
+spec:
+  replicas: 1
+  revisionHistoryLimit: 1
+  selector:
+    matchLabels:
+      name: app
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 50%
+  template:
+    metadata:
+      labels:
+        name: app
+    spec:
+      containers:
+        - name: app
+          image: gcr.io/yourproject/yourapp2:TAG_NAME
+          command: ["/bin/bash"]
+          args:
+            - -c
+            - |
+              php artisan optimize
+              php artisan view:cache
+              apache2-foreground
+          envFrom:
+            - secretRef:
+                name: env
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: 50m
+              memory: 256Mi
+            limits:
+              cpu: 100m
+              memory: 256Mi
+```
 
 ## Problemas identificados
 
