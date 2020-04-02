@@ -883,6 +883,31 @@ spec:
 
 Os conceitos são os mesmos do [07-app-hpa.yaml](#07-app-hpayaml), porém para o nginx.
 
+###### 15-managedcerts.yaml
+
+```yaml
+apiVersion: networking.gke.io/v1beta1
+kind: ManagedCertificate
+metadata:
+  name: yourapp1-com
+  namespace: yourapp1
+spec:
+  domains:
+    - yourapp1.com
+
+---
+apiVersion: networking.gke.io/v1beta1
+kind: ManagedCertificate
+metadata:
+  name: www-yourapp-com
+  namespace: yourapp1
+spec:
+  domains:
+    - www.yourapp1.com
+```
+
+Os certificados SSL auto gerenciados pelo Google. Mais detalhes no tópico [Adicionando certificados SSL auto gerenciados](#adicionando-certificados-ssl-auto-gerenciados)
+
 ## Criando o cluster Kubernetes
 
 ## Realizando o deploy dos manifestos
