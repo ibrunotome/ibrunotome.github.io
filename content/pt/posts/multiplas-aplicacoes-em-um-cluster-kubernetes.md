@@ -593,6 +593,78 @@ spec:
 
 Os conceitos são os mesmos do [07-app-hpa.yaml](#07-app-hpayaml)
 
+###### 11-schedule-deployment.yaml
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: schedule
+  namespace: yourapp1
+  labels:
+    name: schedule
+  annotations:
+    secret.reloader.stakater.com/reload: "env"
+spec:
+  replicas: 1
+  revisionHistoryLimit: 1
+  selector:
+    matchLabels:
+      name: schedule
+  template:
+    metadata:
+      labels:
+        name: schedule
+    spec:
+      containers:
+        - name: schedule
+          image: gcr.io/yourproject/yourapp1:TAG_NAME
+          command: ["/bin/bash"]
+          args:
+            - -c
+            - |
+              php artisan config:cache
+              chmod +x schedule.sh
+              /var/www/schedule.sh
+          envFrom:
+            - secretRef:
+                name: env
+          resources:
+            requests:
+              cpu: 10m
+              memory: 8Mi
+            limits:
+              cpu: 30m
+              memory: 64Mi
+
+        - name: cloudsql-proxy
+          image: gcr.io/cloudsql-docker/gce-proxy:latest
+          command:
+            [
+              "/cloud_sql_proxy",
+              "-instances=yourproject:cloudsql-region:yourproject=tcp:5432",
+              "-credential_file=/secrets/cloudsql/cloudsqlproxy.json",
+            ]
+          resources:
+            requests:
+              cpu: 1m
+              memory: 8Mi
+            limits:
+              cpu: 15m
+              memory: 16Mi
+          volumeMounts:
+            - name: cloudsql-instance-credentials
+              mountPath: /secrets/cloudsql
+              readOnly: true
+
+      volumes:
+        - name: cloudsql-instance-credentials
+          secret:
+            secretName: cloudsql-instance-credentials
+```
+
+Se você já usa kubernetes provavelmente pensou "existe um controller [CronJob](https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/) pra isso". Sim, porém meus crons são executados a cada minuto, o processo de um controller disparar um job, subir um pod, executar o container, matar o pod, e repetir de novo alguns segundos depois não me parece legal. [Não sou o único a adotar essa abordagem para conjobs a cada minuto](https://youtu.be/MoIdU0J0f0E?t=939).
+
 ## Criando o cluster Kubernetes
 
 ## Realizando o deploy dos manifestos
