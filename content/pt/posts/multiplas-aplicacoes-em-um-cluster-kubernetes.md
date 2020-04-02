@@ -28,9 +28,9 @@ Tópicos:
 
 - [O problema inicial](#o-problema-inicial)
 - [Por que Kubernetes?](#por-que-kubernetes)
+- [Criando o cluster kubernetes](#criando-o-cluster-kubernetes)
 - [Preparando os containers](#preparando-os-containers)
 - [Preparando os manifestos](#preparando-os-manifestos)
-- [Criando o cluster kubernetes](#criando-o-cluster-kubernetes)
 - [Realizando o deploy dos manifestos](#realizando-o-deploy-dos-manifestos)
 - [Adicionando certificados SSL auto gerenciados](#adicionando-certificados-ssl-auto-gerenciados)
 - [Automatizando o processo de teste e deploy com um pipeline CI/CD](#automatizando-o-processo-de-testes-e-deploy-com-um-pipeline-de-cicd)
@@ -90,6 +90,8 @@ Os custos previstos:
 - Loadbalancer http/https, 1 até 5 regras de forwarding custam aproximadamente `18 USD`.
 
 Bancos de dados, buckets e outros serviços gerenciados do google não entram na conta pois não foram alterados e seus custos continuaram os mesmos.
+
+## Criando o cluster Kubernetes
 
 ## Preparando os containers
 
@@ -883,7 +885,26 @@ spec:
 
 Os conceitos são os mesmos do [07-app-hpa.yaml](#07-app-hpayaml), porém para o nginx.
 
-###### 15-managedcerts.yaml
+###### 15-nginx-service.yaml
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+  namespace: yourapp1
+spec:
+  type: NodePort
+  ports:
+    - port: 80
+      targetPort: 80
+  selector:
+    name: nginx
+```
+
+Expõe o nginx com o tipo NodePort para que seja acessado pela internet.
+
+###### 16-managedcerts.yaml
 
 ```yaml
 apiVersion: networking.gke.io/v1beta1
@@ -908,11 +929,28 @@ spec:
 
 Os certificados SSL auto gerenciados pelo Google. Mais detalhes no tópico [Adicionando certificados SSL auto gerenciados](#adicionando-certificados-ssl-auto-gerenciados)
 
-## Criando o cluster Kubernetes
+###### 17-ingress.yaml
 
-## Realizando o deploy dos manifestos
+```yaml
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: nginx
+  namespace: yourapp1
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: yourapp1-global-ip-name
+    networking.gke.io/managed-certificates: yourapp1-com,www-yourapp1-com
+spec:
+  backend:
+    serviceName: nginx
+    servicePort: 80
+```
+
+O componente que irá expor a aplicação para a internet. Em `annotations` adicionamos o nome do ip global criado em [Criando o cluster Kubernetes](#criando-o-cluster-kubernetes) e o nome dos certificados gerenciados criados no passo anterior. Em `spec` definimos que todas as requests serão encaminhadas para o serviço nginx na porta 80, criado em [15-nginx-service.yaml](#15-nginx-serviceyaml).
 
 ## Adicionando certificados SSL auto gerenciados
+
+## Realizando o deploy dos manifestos
 
 ## Automatizando o processo de testes e deploy com um pipeline de CI/CD
 
