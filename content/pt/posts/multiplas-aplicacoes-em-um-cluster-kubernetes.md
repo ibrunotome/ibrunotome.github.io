@@ -87,7 +87,7 @@ de gerenciamento de Kubernetes (na minha opinião, um dos melhores e mais robust
 Os custos previstos:
 
 - 2 VMs [e2-standard-2](https://cloud.google.com/blog/products/compute/google-compute-engine-gets-new-e2-vm-machine-types) com 2vCPU e 8GB de ram cada, totalizando um cluster com 4vCPU e 16GB de RAM. Com um contrato de [desconto por uso contínuo](https://cloud.google.com/compute/docs/instances/signing-up-committed-use-discounts) de 3 anos, a previsão mensal de custo é de aproximadamente `45 USD`.
-- Loadbalancer http/htpts, 1 até 5 regras de forwarding custam aproximadamente `18 USD`.
+- Loadbalancer http/https, 1 até 5 regras de forwarding custam aproximadamente `18 USD`.
 
 Bancos de dados, buckets e outros serviços gerenciados do google não entram na conta pois não foram alterados e seus custos continuaram os mesmos.
 
@@ -242,7 +242,7 @@ spec:
     name: nfs-server
 ```
 
-O service acima é o responsável por [expor o deployment criado anteriormente para ser acessado pelos outros pods](https://kubernetes.io/docs/concepts/services-networking/service/). O serviço é exposto apenas para outros pods, e não para a internet.
+O service acima é o responsável por [expor o deployment criado anteriormente para ser acessado pelos outros pods](https://kubernetes.io/docs/concepts/services-networking/service/). O serviço é exposto com ClusterIp, apenas para outros pods, e não para a internet.
 
 Lembre-se de definir o `selector` do service com o mesmo valor definido nas `labels` do selector no deployment.
 
@@ -288,6 +288,158 @@ spec:
 ```
 
 O deploy do redis é do tipo [StatefulSet](https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/), o volume pode acessar diretamente o serviço deployado anteriormente via `<service>`.`<namespace>`.svc.cluster.local.
+
+###### 05-redis-service.yaml
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: yourapp1
+spec:
+  ports:
+    - port: 6379
+      protocol: TCP
+  selector:
+    name: redis
+```
+
+Expõe o redis com ClusterIp para ser acessado pelos outros pods.
+
+###### 06-app-deployment.yaml
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app
+  namespace: yourapp1
+  labels:
+    name: app
+  annotations:
+    secret.reloader.stakater.com/reload: "env"
+spec:
+  replicas: 2
+  revisionHistoryLimit: 1
+  selector:
+    matchLabels:
+      name: app
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 50%
+  template:
+    metadata:
+      labels:
+        name: app
+    spec:
+      containers:
+        - name: app
+          image: gcr.io/yourproject/yourapp1:TAG_NAME
+          command: ["/bin/bash"]
+          args:
+            - -c
+            - |
+              sleep 12
+              php artisan migrate --force
+              php artisan optimize
+              php artisan view:cache
+              ln -s public html
+              ln -s /var/www /usr/share/nginx
+              /usr/local/sbin/php-fpm
+          envFrom:
+            - secretRef:
+                name: env
+          readinessProbe:
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+            successThreshold: 1
+            tcpSocket:
+              port: 9000
+          ports:
+            - containerPort: 9000
+          resources:
+            requests:
+              cpu: 20m
+              memory: 320Mi
+            limits:
+              cpu: 50m
+              memory: 512Mi
+          volumeMounts:
+            - name: static
+              mountPath: /static
+            - name: cache-html
+              mountPath: /var/www/public/cache-html
+          lifecycle:
+            postStart:
+              exec:
+                command: ["/bin/bash", "-c", "cp -r /var/www/public/. /static"]
+
+        - name: cloudsql-proxy
+          image: gcr.io/cloudsql-docker/gce-proxy:latest
+          command:
+            [
+              "/cloud_sql_proxy",
+              "-instances=yourproject:cloudsql-region:yourproject=tcp:5432",
+              "-credential_file=/secrets/cloudsql/cloudsqlproxy.json",
+            ]
+          resources:
+            requests:
+              cpu: 1m
+              memory: 8Mi
+            limits:
+              cpu: 10m
+              memory: 16Mi
+          volumeMounts:
+            - name: cloudsql-instance-credentials
+              mountPath: /secrets/cloudsql
+              readOnly: true
+
+      volumes:
+        - name: static
+          nfs:
+            server: nfs-server.yourapp1.svc.cluster.local
+            path: "/static"
+        - name: cache-html
+          nfs:
+            server: nfs-server.yourapp1.svc.cluster.local
+            path: "/cache-html"
+        - name: cloudsql-instance-credentials
+          secret:
+            secretName: cloudsql-instance-credentials
+```
+
+Responsável pelo deploy da aplicação laravel com fpm, em `annotations` temos uma anotação `secret.reloader.stakater.com/reload: "env"` que irá realizar o deploy de um novo pod `sempre que a secret com nome env` for atualizada. Esse comportamento não é padrão do kubernetes e para habilitá-lo, instalamos um controller chamado [Reloader](https://github.com/stakater/Reloader) com o comando:
+
+```bash
+kubectl apply -f https://raw.githubusercontent.com/stakater/Reloader/master/deployments/kubernetes/reloader.yaml
+```
+
+- `replicas: 2` - definimos que o deploy irá criar 2 pods
+- `revisionHistoryLimit: 1` - só teremos acesso a uma versão anterior a atual para rollback
+
+Em `strategy`:
+
+- `type: RollingUpdate` - Nosso deploy é do tipo [Rolling Update](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#rolling-update-deployment)
+- `maxSurge: 1` - Só pode surgir um novo pod por vez
+- `maxUnavailable: 50%` - No mínimo metade dos pods devem estar disponíveis durante o deploy, ou seja, no exemplo com `replicas: 2` e `maxSurge: 1`, um novo pod surgirá, então um pod antigo será terminado (respeitando o `maxUnavailable: 50%`), então um novo pod surgirá, e o último pod antigo será terminado.
+
+Em `containers`:
+
+Esse pod possui 2 containers, o app principal e um sidecar (um proxy para conexão com o banco de dados no Google Cloud SQL).
+
+No primeiro container `app` temos:
+
+- `commands:` e `args:` - são os comandos que serão executados pelo nosso container, o `sleep` inicial serve para aguardar até que o container sidecar esteja disponível. Na versão `1.18` em diante [esse sleep não será mais necessário](https://banzaicloud.com/blog/k8s-sidecars/).
+- `envFrom:` - injetamos nossas variáveis de ambiente (mostrarei como criá-las no tópico [Automatizando o processo de teste e deploy com um pipeline CI/CD](#automatizando-o-processo-de-testes-e-deploy-com-um-pipeline-de-cicd)).
+- `readinessProbe:` - O container só receberá tráfego após uma conexão TCP bem sucedida com o container na porta 9000.
+- `volumeMounts:` - O volume static compartilha assets entre o app e o nginx. O volume cache-html armazena algumas páginas de forma estática geradas a partir do conteúdo dinâmico, evitando a renderização a todo momento.
+
+No sidecar container `cloudsql-proxy` fazemos a autenticação com o uso de um secret que também mostro como criá-la no tópico [Automatizando o processo de teste e deploy com um pipeline CI/CD](#automatizando-o-processo-de-testes-e-deploy-com-um-pipeline-de-cicd).
 
 ## Criando o cluster Kubernetes
 
