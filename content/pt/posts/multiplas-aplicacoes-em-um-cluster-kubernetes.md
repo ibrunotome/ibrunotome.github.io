@@ -1044,6 +1044,234 @@ O mesmo se aplica para o delete com o `kubectl delete`
 
 ## Automatizando o processo de testes e deploy com um pipeline de CI/CD
 
+O [Google KMS](https://cloud.google.com/kms) é um serviço quer permite gerenciar chaves de criptografia. Com ele podemos criptografar arquivos de configuração/environment variables e `até adicioná-los ao controle de versão` de forma segura, pois estarão criptografados.
+
+Após [ativar a API do KMS](https://console.developers.google.com/apis/library/cloudkms.googleapis.com), crie um grupo de chaves:
+
+```bash
+gcloud kms keyrings create yourkeyringname --location global
+```
+
+Crie uma chave:
+
+```bash
+gcloud kms keys create yourkeyname --location global --keyring yourkeyringname --purpose encryption
+```
+
+Criptografe os arquivos de configuração/environment variables que deseja:
+
+```bash
+gcloud kms encrypt --location global \
+  --keyring yourkeyringname --key yourkeyname \
+  --plaintext-file .env.prod \
+  --ciphertext-file .env.prod.enc
+```
+
+```bash
+gcloud kms encrypt --location global \
+  --keyring yourkeyringname --key yourkeyname \
+  --plaintext-file cloudsqlproxy.json \
+  --ciphertext-file cloudsqlproxy.json.enc
+```
+
+> O exemplo abaixo é necessário apenas se possui algum pacote privado como o [Laravel Nova](https://nova.laravel.com).
+
+```bash
+gcloud kms encrypt --location global \
+  --keyring yourkeyringname --key yourkeyname \
+  --plaintext-file auth.json \
+  --ciphertext-file auth.json.enc
+```
+
+Agora ambos podem ser commitados de forma segura :)
+
+Utilizamos o [Cloud Build](https://cloud.google.com/cloud-build/) para o processo de CI/CD, separo os processos duas [triggers](https://console.cloud.google.com/cloud-build/triggers) e dois arquivos: `cloudbuild.ci.yaml` e `cloudbuild.cd.yaml`. Lembre-se de adicionar as `variáveis de substituição` nas triggers criadas no Cloud Build:
+
+- `_CLUSTER` - o nome do seu cluster
+- `_KEY` - sua chave kms criada anteriormente
+- `_KEYRING` - seu keyring criado anteriormente
+- `_ZONE` - yourregion-zone
+
+###### cloudbuild.ci.yaml
+
+```yaml
+steps:
+  - id: "Decrypt auth.json"
+    name: gcr.io/cloud-builders/gcloud
+    args:
+      - kms
+      - decrypt
+      - --ciphertext-file=auth.json.enc
+      - --plaintext-file=auth.json
+      - --location=global
+      - --keyring=$_KEYRING
+      - --key=$_KEY
+
+  - id: "Copy .env file"
+    name: gcr.io/cloud-builders/gsutil
+    args: ["cp", ".env.testing", ".env"]
+
+  - id: "Up"
+    name: docker/compose:1.24.0
+    args: ["-f", "docker-compose.testing.yml", "up", "-d", "app"]
+
+  - id: "Install dependencies"
+    name: gcr.io/cloud-builders/docker
+    args:
+      [
+        "exec",
+        "-t",
+        "app",
+        "composer",
+        "install",
+        "--no-interaction",
+        "--no-ansi",
+        "--no-progress",
+        "--prefer-dist",
+        "--optimize-autoloader",
+      ]
+
+  - id: "Duplicated code analysis"
+    name: gcr.io/cloud-builders/docker
+    waitFor: ["Install dependencies"]
+    args: ["exec", "-t", "app", "composer", "phpcpd"]
+
+  - id: "Lint analysis"
+    name: gcr.io/cloud-builders/docker
+    waitFor: ["Install dependencies"]
+    args: ["exec", "-t", "app", "composer", "lint"]
+
+  - id: "Code quality and code style analysis"
+    name: gcr.io/cloud-builders/docker
+    waitFor: ["Install dependencies"]
+    args: ["exec", "-t", "app", "composer", "insights"]
+
+  - id: "Run tests"
+    name: gcr.io/cloud-builders/docker
+    waitFor: ["Install dependencies"]
+    args: ["exec", "-t", "app", "composer", "test"]
+```
+
+###### cloudbuild.cd.yaml
+
+```yaml
+steps:
+  - id: "Decrypt .env"
+    name: gcr.io/cloud-builders/gcloud
+    args:
+      - kms
+      - decrypt
+      - --ciphertext-file=.env.prod.enc
+      - --plaintext-file=.env
+      - --location=global
+      - --keyring=$_KEYRING
+      - --key=$_KEY
+
+  - id: "Decrypt cloudsqlproxy.json service account"
+    name: gcr.io/cloud-builders/gcloud
+    args:
+      - kms
+      - decrypt
+      - --ciphertext-file=cloudsqlproxy.json.enc
+      - --plaintext-file=cloudsqlproxy.json
+      - --location=global
+      - --keyring=$_KEYRING
+      - --key=$_KEY
+
+  - id: "Decrypt auth.json"
+    name: gcr.io/cloud-builders/gcloud
+    args:
+      - kms
+      - decrypt
+      - --ciphertext-file=auth.json.enc
+      - --plaintext-file=auth.json
+      - --location=global
+      - --keyring=$_KEYRING
+      - --key=$_KEY
+
+  - id: "Create env secret manifest"
+    name: gcr.io/cloud-builders/kubectl
+    waitFor: ["Decrypt .env"]
+    entrypoint: /bin/sh
+    args:
+      - -c
+        - |
+        kubectl create secret generic env --from-env-file .env --dry-run -n yourapp1 -o yaml > k8s/06.0-app-secret.yaml
+    env:
+      - "CLOUDSDK_COMPUTE_ZONE=$_ZONE"
+      - "CLOUDSDK_CONTAINER_CLUSTER=$_CLUSTER"
+
+  - id: "Create cloudsqlproxy secret manifest"
+    name: gcr.io/cloud-builders/kubectl
+    waitFor: ["Decrypt cloudsqlproxy.json service account"]
+    entrypoint: /bin/sh
+    args:
+      - -c
+      - |
+        kubectl create secret generic cloudsql-instance-credentials --from-file=cloudsqlproxy.json=./cloudsqlproxy.json --dry-run -n yourapp1 -o yaml > k8s/06.1-cloudsqlproxy.yaml
+    env:
+      - "CLOUDSDK_COMPUTE_ZONE=$_ZONE"
+      - "CLOUDSDK_CONTAINER_CLUSTER=$_CLUSTER"
+
+  - id: "Build docker image"
+    name: gcr.io/cloud-builders/docker
+    args:
+      [
+        "build",
+        "--build-arg",
+        "COMPOSER_FLAGS=--prefer-dist --classmap-authoritative --no-dev",
+        "-t",
+        "gcr.io/$PROJECT_ID/yourapp1:$TAG_NAME",
+        "-t",
+        "gcr.io/$PROJECT_ID/yourapp1:latest",
+        ".",
+      ]
+
+  - id: "Push docker image"
+    name: gcr.io/cloud-builders/docker
+    args: ["push", "gcr.io/$PROJECT_ID/yourapp1"]
+
+  - id: "Set manifests image TAG_NAME"
+    name: gcr.io/cloud-builders/gcloud
+    entrypoint: /bin/sh
+    args:
+      - "-c"
+      - |
+        sed -i 's/TAG_NAME/$TAG_NAME/g' k8s/06-app-deployment.yaml
+        sed -i 's/TAG_NAME/$TAG_NAME/g' k8s/09-queue-deployment.yaml
+        sed -i 's/TAG_NAME/$TAG_NAME/g' k8s/11-schedule-deployment.yaml
+
+  - id: "Deploy"
+    name: gcr.io/cloud-builders/gke-deploy
+    args:
+      ["apply", "-f", "k8s/", "--cluster", "$_CLUSTER", "--location", "$_ZONE"]
+
+  - id: "Copy assets to bucket"
+    name: gcr.io/cloud-builders/gsutil
+    waitFor: ["-"]
+    args:
+      [
+        "-h",
+        "Cache-Control:public,max-age=31536000",
+        "-m",
+        "cp",
+        "-r",
+        "-Z",
+        "public/*",
+        "gs://yourapp1bucket",
+      ]
+```
+
+Não vou entrar em detalhes sobre o processo de CI em `cloudbuild.ci.yaml` pois não é o propósito. Em resumo sobre o processo de CD em `cloudbuild.cd.yaml`:
+
+- Os arquivos de configuração/environment variables são descriptografados
+- A criação secret `env` utilizada nos manifestos de `06-app-deployment`, `09-queue-deployment` e `11-schedule-deployment` é simulada com `--dry-run` a partir do arquivo .env que foi descriptografado e seu output é salvo em `k8s/06.0-app-secret.yaml`.
+- O mesmo processo ser repete para a service account utilizada para que o cloudsqlproxy tenha acesso ao Cloud SQL.
+- A imagem docker é criada e tageada com a release tag do repositório e com a tag latest.
+- A palavra TAG_NAME é substituída pela release tag do repositório nos arquivos de manifesto.
+- O deploy dos manifestos é realizado.
+- Os assets da aplicação são copiados para um bucket.
+
 ## Monitorando o cluster com Kontena Lens e métricas Prometheus
 
 ## Problemas identificados
