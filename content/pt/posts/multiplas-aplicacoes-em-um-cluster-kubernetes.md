@@ -5,7 +5,11 @@ date: "2020-03-29T13:29:17-03:00"
 lastmod: "2020-03-29T13:29:17-03:00"
 tags: ["gcp", "laravel", "prometheus"]
 categories: ["devops", "kubernetes"]
-imgs: ["/../multiple-applications-in-one-kubernetes-cluster.svg"]
+imgs:
+  [
+    "/../multiple-applications-in-one-kubernetes-cluster.svg",
+    "/../kontena-lens.png",
+  ]
 cover: "/multiple-applications-in-one-kubernetes-cluster.svg"
 readingTime: true
 toc: true
@@ -1273,6 +1277,14 @@ Não vou entrar em detalhes sobre o processo de CI em `cloudbuild.ci.yaml` pois 
 - Os assets da aplicação são copiados para um bucket.
 
 ## Monitorando o cluster com Kontena Lens e métricas Prometheus
+
+Usando a api do kubernetes é possível obter vários dados para monitorar o cluster, porém para uma visão gráfica geral de todos os namespaces utilizo o [Kontena Lens](https://k8slens.dev), uma ferramenta grátis e opensource:
+
+![Kontena Lens](/kontena-lens.png)
+
+Após instalá-lo e conectá-lo ao cluster, clique com o botão direito no ícone do cluster e habilite as métricas prometheus.
+
+Analise ao longo do tempo se as `requests` e os `limits` definidos nos deployments estão sendo suficientes ou até mesmo se estão desperdiçando recurso e redefina-os caso necessário.
 
 ## Problemas identificados
 
