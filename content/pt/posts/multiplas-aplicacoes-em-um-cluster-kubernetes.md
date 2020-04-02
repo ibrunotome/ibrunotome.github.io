@@ -93,6 +93,45 @@ Bancos de dados, buckets e outros serviços gerenciados do google não entram na
 
 ## Criando o cluster Kubernetes
 
+Podemos criar o cluster no GKE pelo [Google Cloud Console](https://console.cloud.google.com/kubernetes/) ou via linha de comando a partir de nossa máquina:
+
+> Tenha o gcloud e kubectl previamente instalados.
+
+```bash
+gcloud container \
+  clusters create "yourclustername" \
+  --project "yourprojectname" \
+  --zone "yourregion-zone" \
+  --no-enable-basic-auth \
+  --release-channel "regular" \
+  --machine-type "e2-standard-2" \
+  --image-type "COS" \
+  --disk-type "pd-ssd" \
+  --disk-size "20" \
+  --metadata disable-legacy-endpoints=true \
+  --scopes "https://www.googleapis.com/auth/devstorage.read_only","https://www.googleapis.com/auth/logging.write","https://www.googleapis.com/auth/monitoring","https://www.googleapis.com/auth/servicecontrol","https://www.googleapis.com/auth/service.management.readonly","https://www.googleapis.com/auth/trace.append" \
+  --num-nodes "2" \
+  --enable-stackdriver-kubernetes \
+  --enable-ip-alias \
+  --network "projects/yourprojectname/global/networks/yournetwork" \
+  --subnetwork "projects/yourprojectname/regions/yourregion/subnetworks/yournetwork" \
+  --default-max-pods-per-node "110" \
+  --enable-autoscaling \
+  --min-nodes "2" \
+  --max-nodes "3" \
+  --no-enable-master-authorized-networks \
+  --addons HorizontalPodAutoscaling,HttpLoadBalancing,NodeLocalDNS,ApplicationManager \
+  --enable-autoupgrade \
+  --enable-autorepair \
+  --max-surge-upgrade 1 \
+  --max-unavailable-upgrade 0 \
+  --enable-shielded-nodes
+```
+
+Definimos que o cluster terá no mínimo 2 nodes com máquinas do tipo e2-standard-2 (máquinas contratadas no commitment discount mencionado anteriormente), e, no máximo 3 nodes.
+
+Substitua `yourclustername`, `yourprojectname`, `yourregion` (ex para São Paulo: southamerica-east1), `yourregion-zone` (ex para São Paulo e zona a: southamerica-east1-a) e `yournetwork` pelos devidos valores.
+
 ## Preparando os containers
 
 Como dito no primeiro tópico, as aplicações já rodavam containerizadas. Um container dedicado a aplicação web, um para as queues, um para a execução de schedules, um container redis e um nginx. O container certbot foi descartado pois foi adotada outra abordagem para gerenciamento dos certificados SSL.
@@ -221,7 +260,7 @@ Alguns detalhes do arquivo:
 - O disco definido em `pdName` nos volumes deve ser criado anteriormente com:
 
 ```bash
-gcloud compute disks create --size=1GB --zone=us-central1-a --type=pd-ssd yourapp1-nfs-disk
+gcloud compute disks create --size=1GB --zone=yourregion-zone --type=pd-ssd yourapp1-nfs-disk
 ```
 
 ###### 03-nfs-server-service.yaml
@@ -946,7 +985,9 @@ spec:
     servicePort: 80
 ```
 
-O componente que irá expor a aplicação para a internet. Em `annotations` adicionamos o nome do ip global criado em [Criando o cluster Kubernetes](#criando-o-cluster-kubernetes) e o nome dos certificados gerenciados criados no passo anterior. Em `spec` definimos que todas as requests serão encaminhadas para o serviço nginx na porta 80, criado em [15-nginx-service.yaml](#15-nginx-serviceyaml).
+Criaremos um ip global para ser utilizado pela aplicação: `gcloud compute addresses create yourapp1-global-ip-name --global`.
+
+O componente que irá expor a aplicação para a internet. Em `annotations` adicionamos o nome do ip global criado acima e o nome dos certificados gerenciados criados no passo anterior. Em `spec` definimos que todas as requests serão encaminhadas para o serviço nginx na porta 80, criado em [15-nginx-service.yaml](#15-nginx-serviceyaml).
 
 ## Adicionando certificados SSL auto gerenciados
 
