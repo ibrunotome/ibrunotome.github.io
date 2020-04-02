@@ -591,7 +591,7 @@ spec:
         targetAverageUtilization: 90
 ```
 
-Os conceitos são os mesmos do [07-app-hpa.yaml](#07-app-hpayaml)
+Os conceitos são os mesmos do [07-app-hpa.yaml](#07-app-hpayaml), porém para a queue.
 
 ###### 11-schedule-deployment.yaml
 
@@ -787,6 +787,101 @@ data:
 ```
 
 O [ConfigMap](https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/) com a configuração nginx utilizada para essa aplicação.
+
+###### 13-nginx-deployment.yaml
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+  namespace: yourapp1
+  annotations:
+    configmap.reloader.stakater.com/reload: "nginx-configmap"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: nginx
+  template:
+    metadata:
+      labels:
+        name: nginx
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.17-alpine
+          command:
+            [
+              "/bin/sh",
+              "-c",
+              "touch /usr/share/nginx/html/index.php; nginx -g 'daemon off;'",
+            ]
+          resources:
+            requests:
+              cpu: 1m
+              memory: 16Mi
+            limits:
+              cpu: 2m
+              memory: 32Mi
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: nginx-configmap
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+              readOnly: true
+            - name: static
+              mountPath: /static
+            - name: cache-html
+              mountPath: /usr/share/nginx/html/cache-html
+
+      volumes:
+        - name: nginx-configmap
+          configMap:
+            name: nginx-configmap
+            items:
+              - key: nginx.conf
+                path: nginx.conf
+        - name: static
+          nfs:
+            server: nfs-server.yourapp1.svc.cluster.local
+            path: "/static"
+        - name: cache-html
+          nfs:
+            server: nfs-server.yourapp1.svc.cluster.local
+            path: "/cache-html"
+```
+
+O deployment do nginx utiliza o nfs-server criado no [passo 2](#02-nfs-server-deploymentyaml) e exposto no [passo 3](#02-nfs-server-serviceyaml), ele terá acesso aos conteúdos compartilhados pelo [passo 6](#06-app-deploymentyaml). Além de utilizar o nginx-configmap criado no passo anterior.
+
+###### 14-nginx-hpa.yaml
+
+```yaml
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: nginx
+  namespace: yourapp1
+spec:
+  maxReplicas: 2
+  minReplicas: 1
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: nginx
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        targetAverageUtilization: 90
+    - type: Resource
+      resource:
+        name: memory
+        targetAverageUtilization: 90
+```
+
+Os conceitos são os mesmos do [07-app-hpa.yaml](#07-app-hpayaml), porém para o nginx.
 
 ## Criando o cluster Kubernetes
 
