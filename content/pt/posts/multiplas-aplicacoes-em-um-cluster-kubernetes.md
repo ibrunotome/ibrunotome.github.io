@@ -1090,7 +1090,7 @@ gcloud kms encrypt --location global \
 
 Agora ambos podem ser commitados de forma segura :)
 
-Utilizamos o [Cloud Build](https://cloud.google.com/cloud-build/) para o processo de CI/CD, separo os processos duas [triggers](https://console.cloud.google.com/cloud-build/triggers) e dois arquivos: `cloudbuild.ci.yaml` e `cloudbuild.cd.yaml`. Lembre-se de adicionar as `variáveis de substituição` nas triggers criadas no Cloud Build:
+Utilizo o [Cloud Build](https://cloud.google.com/cloud-build/) para o processo de CI/CD, separo os processos duas [triggers](https://console.cloud.google.com/cloud-build/triggers) e dois arquivos: `cloudbuild.ci.yaml` e `cloudbuild.cd.yaml`. Lembre-se de adicionar as `variáveis de substituição` nas triggers criadas no Cloud Build:
 
 - `_CLUSTER` - o nome do seu cluster
 - `_KEY` - sua chave kms criada anteriormente
@@ -1350,5 +1350,119 @@ spec:
 ```
 
 ## Problemas identificados
+
+Com o Kubernetes em si, nenhum até o momento. Porém, aqui vão algumas dicas para que alguém que esteja lendo não passe pelas mesmas situações que passei:
+
+###### Reduza os recursos utilizado pelo namespace kube-system
+
+Por padrão o GKE declara um limit de 1 vCPU para o `fluentd` utilizado na captura de logs, para um cluster pequeno como nosso esse limite está exagerado. Abaixo uma ScalingPolicy das requests and limits do fluentd:
+
+```yaml
+apiVersion: scalingpolicy.kope.io/v1alpha1
+kind: ScalingPolicy
+metadata:
+  name: fluentd-gcp-scaling-policy
+  namespace: kube-system
+spec:
+  containers:
+    - name: fluentd-gcp
+      resources:
+        requests:
+          - resource: cpu
+            base: 15m
+          - resource: memory
+            base: 198Mi
+        limits:
+          - resource: cpu
+            base: 20m
+          - resource: memory
+            base: 256Mi
+```
+
+980m de cpu a menos do que o padrão definido pelo GKE 😅
+
+Aplique o arquivo acima:
+
+```bash
+kubectl apply -f fluentd-gcp-scaling-policy.yaml
+```
+
+Outras dicas para reduzir recursos consumidos pelo namespace kube-system podem ser encontradas [aqui](https://cloud.google.com/kubernetes-engine/docs/how-to/small-cluster-tuning).
+
+###### Custo de forwading rules no load balancer
+
+Como dito anteriormente, entre 1 e 5 forwarding rules o custo é o mesmo, aproximadamente `18 USD`. Porém, após o deploy de 5 aplicações temos 10 fowarding rules, totalizando mais de `50 USD`...
+
+<p align="center">
+<iframe src="https://giphy.com/embed/Sqfdtirm5xPIu01Bez" width="380" frameBorder="0"></iframe>
+</p>
+
+Possíveis soluções:
+
+- Com custo aproximado de 18 USD: Utilizar [apenas um load balancer](https://stackoverflow.com/questions/58739513/google-kubernetes-engine-how-to-define-one-ingress-for-multiple-namespaces/60335810#60335810) no namespace default com nginx realizando o proxy para os serviços em diferentes namespaces, gerando assim apenas duas forwarding rules. Exemplo de um nginx-configmap para atingir esse objetivo:
+
+  ```yaml
+  apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    name: nginx-configmap
+    namespace: default
+  data:
+    default.conf: |
+      server {
+        listen 80;
+        listen [::]:80;
+        server_name  _;
+
+        location / {
+          add_header Content-Type text/plain;
+          return 200 "OK.";
+        }
+      }
+
+      server {
+        listen 80;
+        listen [::]:80;
+        server_name yourapp1.com www.yourapp1.com;
+
+        location / {
+          proxy_set_header Host            $host;
+          proxy_set_header X-Forwarded-For $remote_addr;
+          proxy_pass http://nginx.yourapp1.svc.cluster.local:80;
+        }
+      }
+
+      server {
+        listen 80;
+        listen [::]:80;
+        server_name yourapp2.com www.yourapp2.com;
+
+        location / {
+          proxy_set_header Host            $host;
+          proxy_set_header X-Forwarded-For $remote_addr;
+          proxy_pass http://app.yourapp2.svc.cluster.local:8080;
+        }
+      }
+  ```
+
+  Vantagens:
+
+  - Sua aplicação continua usufluindo do [load balancer do Google](https://cloud.google.com/load-balancing).
+  - Os certificados SSL auto gerenciados pelo Google ainda funcionam.
+
+  Desvantagens:
+
+  - 18 USD 😅
+
+- Com custo `0 USD`: [Nginx Ingress](https://kubernetes.github.io/ingress-nginx/), [Traefik](http://traefik.io), [Istio](https://istio.io/docs/tasks/traffic-management/ingress/) ou outro ingress.
+
+  Vantagens:
+
+  - 0 USD
+  - Features não disponíveis no ingress padrão do Google.
+
+  Desvantagens:
+
+  - Aparentemente, bem mais trabalhoso (minha opinião).
 
 ## Próximos passos
