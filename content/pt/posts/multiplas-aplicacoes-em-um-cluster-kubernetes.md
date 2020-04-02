@@ -97,6 +97,8 @@ Podemos criar o cluster no GKE pelo [Google Cloud Console](https://console.cloud
 
 > Tenha o gcloud e kubectl previamente instalados.
 
+> Substitua `yourclustername`, `yourprojectname`, `yourregion` (ex para São Paulo: southamerica-east1), `yourregion-zone` (ex para São Paulo e zona a: southamerica-east1-a) e `yournetwork` pelos devidos valores.
+
 ```bash
 gcloud container \
   clusters create "yourclustername" \
@@ -128,9 +130,13 @@ gcloud container \
   --enable-shielded-nodes
 ```
 
-Definimos que o cluster terá no mínimo 2 nodes com máquinas do tipo e2-standard-2 (máquinas contratadas no commitment discount mencionado anteriormente), e, no máximo 3 nodes.
+Definimos que o cluster terá no mínimo 2 nodes com máquinas do tipo e2-standard-2 (máquinas contratadas no commitment discount mencionado anteriormente), e no máximo 3 nodes.
 
-Substitua `yourclustername`, `yourprojectname`, `yourregion` (ex para São Paulo: southamerica-east1), `yourregion-zone` (ex para São Paulo e zona a: southamerica-east1-a) e `yournetwork` pelos devidos valores.
+Altere o contexto do `kubectl` para o GKE:
+
+```bash
+kubectl config set-context gke_yourprojectname_yourregion-zone_yourclustername
+```
 
 ## Preparando os containers
 
@@ -151,7 +157,11 @@ Mostrarei o propósito de cada arquivo. Veja detalhes e conceitos do Kubernetes 
 
 A infraestrutura da aplicação é definida como código, os controllers do Kubernetes checam em loop `se o estado atual da aplicação é igual ao estado definido via código`, e caso não seja, aplica as modificações necessárias.
 
-Os manifestos podem ser definidos em YAML ou JSON, as extensões `.yaml`, `.yml` e `.json` são aceitas. Coloco todos no mesmo diretório para facilitar o deploy com o comando `kubectl apply -f k8s/`.
+Os manifestos podem ser definidos em YAML ou JSON, as extensões `.yaml`, `.yml` e `.json` são aceitas. Coloco todos no mesmo diretório para facilitar o deploy com o comando:
+
+```bash
+kubectl apply -f k8s/
+```
 
 ###### 01-namespace.yaml
 
@@ -985,11 +995,35 @@ spec:
     servicePort: 80
 ```
 
-Criaremos um ip global para ser utilizado pela aplicação: `gcloud compute addresses create yourapp1-global-ip-name --global`.
+Criaremos um ip global para ser utilizado pela aplicação:
 
-O componente que irá expor a aplicação para a internet. Em `annotations` adicionamos o nome do ip global criado acima e o nome dos certificados gerenciados criados no passo anterior. Em `spec` definimos que todas as requests serão encaminhadas para o serviço nginx na porta 80, criado em [15-nginx-service.yaml](#15-nginx-serviceyaml).
+```bash
+gcloud compute addresses create yourapp1-global-ip-name --global
+```
+
+O ingress que irá expor a aplicação para a internet. Em `annotations` adicionamos o nome do ip global criado acima e o nome dos certificados gerenciados criados no passo anterior. Em `spec` definimos que todas as requests serão encaminhadas para o serviço nginx na porta 80, criado em [15-nginx-service.yaml](#15-nginx-serviceyaml).
+
+Por trás dos panos, um load balancer é criado com duas forwarding rules (http e https) apontando para esse ingress e sua `spec`.
 
 ## Adicionando certificados SSL auto gerenciados
+
+Crie uma zona DNS
+
+https://cloud.google.com/dns/docs/
+
+Aponte o NS em seu register domain para os mostrados na zona DNS criada acima.
+
+Aponte o record A para o IP criado anteriormente em [17-ingress.yaml](#17-ingressyaml). Obtenha o IP com o comando:
+
+```bash
+gcloud compute addresses \
+  describe yourapp1-global-ip-name --global \
+  --format='value(address)'
+```
+
+Veja com o comando `host yourapp1.com` se ele já está apontando para o IP criado anteriormente.
+
+No processo de deploy, quando o arquivo [16-managedcerts.yaml](#16-managedcertsyaml) for aplicado (`kubectl apply -f 16-managedcerts.yaml`), o processo de geração do certificado irá levar de 15 a 30 minutos.
 
 ## Realizando o deploy dos manifestos
 
