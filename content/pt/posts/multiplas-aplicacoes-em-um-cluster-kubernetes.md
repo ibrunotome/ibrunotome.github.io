@@ -489,6 +489,82 @@ spec:
 
 Expõe o app com ClusterIp para ser acessado pelos outros pods.
 
+###### 09-queue-deployment.yaml
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: queue
+  namespace: yourapp1
+  labels:
+    name: queue
+  annotations:
+    secret.reloader.stakater.com/reload: "env"
+spec:
+  replicas: 1
+  revisionHistoryLimit: 1
+  selector:
+    matchLabels:
+      name: queue
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 50%
+  template:
+    metadata:
+      labels:
+        name: queue
+    spec:
+      containers:
+        - name: queue
+          image: gcr.io/yourproject/yourapp1:TAG_NAME
+          command: ["/bin/bash"]
+          args:
+            - -c
+            - |
+              php artisan config:cache
+              php artisan horizon --quiet
+          envFrom:
+            - secretRef:
+                name: env
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 150m
+              memory: 512Mi
+
+        - name: cloudsql-proxy
+          image: gcr.io/cloudsql-docker/gce-proxy:latest
+          command:
+            [
+              "/cloud_sql_proxy",
+              "-instances=yourproject:cloudsql-region:yourproject=tcp:5432",
+              "-credential_file=/secrets/cloudsql/cloudsqlproxy.json",
+            ]
+          resources:
+            requests:
+              cpu: 1m
+              memory: 8Mi
+            limits:
+              cpu: 10m
+              memory: 16Mi
+          volumeMounts:
+            - name: cloudsql-instance-credentials
+              mountPath: /secrets/cloudsql
+              readOnly: true
+
+      volumes:
+        - name: cloudsql-instance-credentials
+          secret:
+            secretName: cloudsql-instance-credentials
+```
+
+Os conceitos são os mesmos do [06-app-deployment.yaml](#06-app-deploymentyaml), porém iniciamos com apenas uma réplica e o HPA a seguir controla a necessidade de outras réplicas.
+
 ## Criando o cluster Kubernetes
 
 ## Realizando o deploy dos manifestos
