@@ -665,6 +665,129 @@ spec:
 
 Se você já usa kubernetes provavelmente pensou "existe um controller [CronJob](https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/) pra isso". Sim, porém meus crons são executados a cada minuto, o processo de um controller disparar um job, subir um pod, executar o container, matar o pod, e repetir de novo alguns segundos depois não me parece legal. [Não sou o único a adotar essa abordagem para conjobs a cada minuto](https://youtu.be/MoIdU0J0f0E?t=939).
 
+###### 12-nginx-configmap.yaml
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-configmap
+  namespace: yourapp1
+data:
+  nginx.conf: |
+    user  nginx;
+    worker_processes  auto;
+
+    events {
+      worker_connections 4096;
+      multi_accept on;
+      use epoll;
+    }
+
+    http {
+      include       mime.types;
+      server_tokens off;
+      default_type  application/octet-stream;
+
+      client_body_buffer_size 10K;
+      client_header_buffer_size 1k;
+      client_max_body_size 10m;
+      large_client_header_buffers 4 16k;
+
+      access_log off;
+      error_log /dev/stderr;
+
+      sendfile on;
+
+      keepalive_timeout  65;
+      keepalive_requests 100;
+
+      log_format json_combined escape=json
+        '{'
+          '"time_local":"$time_local",'
+          '"remote_addr":"$remote_addr",'
+          '"remote_user":"$remote_user",'
+          '"request":"$request",'
+          '"status": "$status",'
+          '"body_bytes_sent":"$body_bytes_sent",'
+          '"request_time":"$request_time",'
+          '"http_referrer":"$http_referer",'
+          '"http_user_agent":"$http_user_agent"'
+        '}';
+
+      server {
+        listen 80;
+        server_name yourapp1.com www.yourapp1.com;
+        index index.php index.html;
+        root /usr/share/nginx/html;
+
+        if ($host = "www.yourapp1.com") {
+          rewrite ^ https://yourapp1.com$request_uri? permanent;
+        }
+
+        if ($http_x_forwarded_proto = "http") {
+          rewrite ^ https://yourapp1domain.com$request_uri? permanent;
+        }
+
+        add_header 'Referrer-Policy' 'same-origin';
+        add_header 'Feature-Policy' "geolocation 'none'; vibrate 'none'";
+        add_header 'Strict-Transport-Security' 'max-age=31536000; includeSubdomains; preload';
+        add_header 'X-Content-Type-Options' 'nosniff';
+        add_header 'X-Frame-Options' 'SAMEORIGIN';
+        add_header 'X-XSS-Protection' '1; mode=block';
+
+        gzip on;
+        gzip_disable "MSIE [1-6]\.(?!.*SV1)";
+        gzip_vary on;
+        gzip_proxied any;
+        gzip_comp_level 6;
+        gzip_buffers 16 8k;
+        gzip_http_version 1.1;
+        gzip_types text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript application/javascript text/x-js;
+
+        location ~* \.(js|jpg|jpeg|gif|png|css|tgz|gz|rar|bz2|doc|pdf|ppt|tar|wav|bmp|rtf|swf|ico|flv|txt|woff|woff2|svg|xml)$ {
+          root /static;
+          expires 365d;
+          access_log off;
+          etag on;
+          if_modified_since exact;
+          add_header Pragma "public";
+          add_header Cache-Control "max-age=31536000, public";
+          add_header Access-Control-Allow-Origin *;
+          try_files $uri =404;
+        }
+
+        location = / {
+          try_files /cache-html/index.html /index.php?$args;
+        }
+
+        location ~ ^/(comprar|blog|recompensas|avaliacoes-de-clientes|termos-de-servico|sobre-nos|politica-de-privacidade|politica-de-cancelamento).*$ {
+          try_files /cache-html/$uri.html$arg_page $uri $uri/ /index.php?$args;
+        }
+
+        location / {
+          try_files $uri $uri/ /index.php?$query_string;
+        }
+
+        location ~ \.php$ {
+          try_files $uri =404;
+          fastcgi_split_path_info ^(.+\.php)(/.+)$;
+          fastcgi_pass app:9000;
+          fastcgi_index index.php;
+          include fastcgi_params;
+          fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+          fastcgi_param PATH_INFO $fastcgi_path_info;
+          fastcgi_read_timeout 180;
+          proxy_set_header Host            $http_host;
+          proxy_set_header X-Real-IP       $remote_addr;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+      }
+    }
+```
+
+O [ConfigMap](https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/) com a configuração nginx utilizada para essa aplicação.
+
 ## Criando o cluster Kubernetes
 
 ## Realizando o deploy dos manifestos
