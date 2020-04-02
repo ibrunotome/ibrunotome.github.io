@@ -565,6 +565,34 @@ spec:
 
 Os conceitos são os mesmos do [06-app-deployment.yaml](#06-app-deploymentyaml), porém iniciamos com apenas uma réplica e o HPA a seguir controla a necessidade de outras réplicas.
 
+###### 10-queue-hpa.yaml
+
+```yaml
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: queue
+  namespace: yourapp1
+spec:
+  maxReplicas: 2
+  minReplicas: 1
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: queue
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        targetAverageUtilization: 100
+    - type: Resource
+      resource:
+        name: memory
+        targetAverageUtilization: 90
+```
+
+Os conceitos são os mesmos do [07-app-hpa.yaml](#07-app-hpayaml)
+
 ## Criando o cluster Kubernetes
 
 ## Realizando o deploy dos manifestos
