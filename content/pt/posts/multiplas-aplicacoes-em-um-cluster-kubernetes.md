@@ -469,6 +469,26 @@ spec:
 
 O [Horizontal Pod Autoscaler (HPA)](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/) escala automaticamente o número de pods do nosso deployment. No exemplo em 06-app-deployment.yaml, nosso deployment foi feito com duas réplicas, o HPA acima consegue irá escalar esse deployment para 1 ou 3 réplicas baseado na média de utilização de cpu e memória do deployment.
 
+###### 08-app-service.yaml
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: app
+  namespace: yourapp1
+  labels:
+    name: app
+spec:
+  ports:
+    - protocol: TCP
+      port: 9000
+  selector:
+    name: app
+```
+
+Expõe o app com ClusterIp para ser acessado pelos outros pods.
+
 ## Criando o cluster Kubernetes
 
 ## Realizando o deploy dos manifestos
