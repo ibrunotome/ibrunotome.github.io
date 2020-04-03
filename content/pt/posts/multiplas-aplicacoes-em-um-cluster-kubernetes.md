@@ -38,10 +38,10 @@ Tópicos:
 - [Realizando o deploy dos manifestos](#realizando-o-deploy-dos-manifestos)
 - [Adicionando certificados SSL auto gerenciados](#adicionando-certificados-ssl-auto-gerenciados)
 - [Automatizando o processo de teste e deploy com um pipeline CI/CD](#automatizando-o-processo-de-testes-e-deploy-com-um-pipeline-de-cicd)
-- [Monitorando o cluster com Kontena Lens e métricas Prometheus](#monitorando-o-cluster-com-kontena-lens-e-metricas-prometheus)
+- [Monitorando o cluster com Kontena Lens e métricas Prometheus](#monitorando-o-cluster-com-kontena-lens-e-métricas-prometheus)
 - [Realizando o deploy de outras aplicações](#realizando-o-deploy-de-outras-aplicações)
 - [Problemas identificados](#problemas-identificados)
-- [Próximos passos](#proximos-passos)
+- [Próximos passos](#próximos-passos)
 
 ---
 
@@ -1466,3 +1466,20 @@ Possíveis soluções:
   - Aparentemente, bem mais trabalhoso (minha opinião).
 
 ## Próximos passos
+
+Continuar monitorando e aprimorando o conhecimento na ferramenta. O processo ao longo dos dias foi bem divertido. Se lhe ajudou ou se tem sugestões, deixe um comentário abaixo :)
+
+Conteúdos que me ajudaram no processo:
+
+- https://kubernetes.io
+- https://www.k8sref.io
+- https://itsmetommy.com
+- https://k8s.af
+
+Último recado:
+
+<p align="center">
+  <img src="/keep-it-simple.jpeg" alt="Keep it simle stupid!">
+</p>
+
+Só se aventure no Kubernetes e outras ferramentas **se fazer sentido** para seu contexto.
