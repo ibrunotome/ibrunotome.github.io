@@ -1399,7 +1399,7 @@ Como dito anteriormente, entre 1 e 5 forwarding rules o custo é o mesmo, aproxi
 
 Possíveis soluções:
 
-- Com custo aproximado de 18 USD: Utilizar [apenas um load balancer](https://stackoverflow.com/questions/58739513/google-kubernetes-engine-how-to-define-one-ingress-for-multiple-namespaces/60335810#60335810) no namespace default com nginx realizando o proxy para os serviços em diferentes namespaces, gerando assim apenas duas forwarding rules. Exemplo de um nginx-configmap para atingir esse objetivo:
+- Com custo aproximado de `18 USD`: Utilizar [apenas um load balancer](https://stackoverflow.com/questions/58739513/google-kubernetes-engine-how-to-define-one-ingress-for-multiple-namespaces/60335810#60335810) no namespace default com nginx realizando o proxy para os serviços em diferentes namespaces, gerando assim apenas duas forwarding rules. Exemplo de um nginx-configmap para atingir esse objetivo:
 
   ```yaml
   apiVersion: v1
@@ -1452,13 +1452,13 @@ Possíveis soluções:
 
   Desvantagens:
 
-  - 18 USD 😅
+  - `18 USD` 😅
 
 - Com custo `0 USD`: [Nginx Ingress](https://kubernetes.github.io/ingress-nginx/), [Traefik](http://traefik.io), [Istio](https://istio.io/docs/tasks/traffic-management/ingress/) ou outro ingress.
 
   Vantagens:
 
-  - 0 USD
+  - `0 USD`
   - Features não disponíveis no ingress padrão do Google.
 
   Desvantagens:

@@ -48,9 +48,7 @@ params:
     showTags: true
     custom:
       - title: Sobre
-        url: /sobre
-      - title: GitHub
-        url: "https://github.com/ibrunotome"
+        url: /about
 
 permalinks:
   posts: "/:title"
