@@ -7,10 +7,10 @@ tags: ["gcp", "laravel"]
 categories: ["devops", "kubernetes"]
 imgs:
   [
-    "/../multiple-applications-in-one-kubernetes-cluster.svg",
-    "/../kontena-lens.png",
+    "../multiple-applications-in-one-kubernetes-cluster.svg",
+    "../kontena-lens.png",
   ]
-cover: "/multiple-applications-in-one-kubernetes-cluster.svg"
+cover: "../multiple-applications-in-one-kubernetes-cluster.svg"
 readingTime: true
 toc: true
 comments: true
@@ -65,7 +65,7 @@ Mesmo com todo o processo de deploy automatizado, sem gerar dores de cabeça, `a
   os 120 workers não serem suficientes para uma entrega rápida, ocasionando em um wait time longo para executar os jobs
   nas queues:
 
-  ![Longo tempo de espera para execução dos jobs no horizon](/horizon-queue-long-wait-time.png)
+  ![Longo tempo de espera para execução dos jobs no horizon](../horizon-queue-long-wait-time.png)
 
   Essa aplicação definivamente precisava de mais recursos enquanto as outras duas citadas anteriormente não utilizavam
   todos os recursos disponíveis.
@@ -74,7 +74,7 @@ Mesmo com todo o processo de deploy automatizado, sem gerar dores de cabeça, `a
 
 - Uma quinta aplicação, também em container único, rodava bem no cloud.run e, diferentemente da anterior não precisa de conexão com queues. Porém, como possui muitos acessos no cloud.run e o tempo de execução de CPU de cada request dessa aplicação é alto, os custos no cloud.run começaram a incomodar (abaixo os preços do cloud.run com e sem free tier):
 
-  ![Cloud Run Pricing](/cloud-run-pricing.png)
+  ![Cloud Run Pricing](../cloud-run-pricing.png)
 
 Uma solução viável para otimização da utilização de recursos seria executar as aplicações num cluster, possuindo assim o
 controle de quanto hardware dedicar a cada aplicação e abrindo possibilidade para escalabilidade da terceira aplicação
@@ -155,7 +155,7 @@ Aqui vem o primeiro baque pra quem era acostumado a subir o ambiente de produç�
 docker-compose.yaml 🙃
 
 <p align="center">
-  <img src="/k8s-first-application-manifests.png" width="400px">
+  <img src="../k8s-first-application-manifests.png" width="400px">
 </p>
 
 Mostrarei o propósito de cada arquivo. Veja detalhes e conceitos do Kubernetes em sua [documentação](https://kubernetes.io/docs/concepts/).
@@ -1283,7 +1283,7 @@ Não vou entrar em detalhes sobre o processo de CI em `cloudbuild.ci.yaml` pois 
 
 Usando a api do kubernetes é possível obter vários dados para monitorar o cluster, porém para uma visão gráfica geral de todos os namespaces utilizo o [Kontena Lens](https://k8slens.dev), uma ferramenta grátis e opensource:
 
-![Kontena Lens](/kontena-lens.png)
+![Kontena Lens](../kontena-lens.png)
 
 Após instalá-lo e conectá-lo ao cluster, clique com o botão direito no ícone do cluster e habilite as métricas prometheus.
 
@@ -1294,7 +1294,7 @@ Analise ao longo do tempo se as `requests` e os `limits` definidos nos deploymen
 O processo de deploy das outras aplicações é o mesmo, o namespace é diferente, mas os conceitos são os mesmos. Como um rápido exemplo, a quinta aplicação mencionada no início (executada no cloud.run), desta vez com um container apache:
 
 <p align="center">
-  <img src="/k8s-second-application-manifests.png" width="400px">
+  <img src="../k8s-second-application-manifests.png" width="400px">
 </p>
 
 Exemplo do app-deployment:
@@ -1479,7 +1479,7 @@ Conteúdos que me ajudaram no processo:
 Último recado:
 
 <p align="center">
-  <img src="/keep-it-simple.jpeg" alt="Keep it simle stupid!">
+  <img src="../keep-it-simple.jpeg" alt="Keep it simle stupid!">
 </p>
 
-Só se aventure no Kubernetes e outras ferramentas **se fazer sentido** para seu contexto.
+Só se aventure no Kubernetes e outras ferramentas **se faz sentido** para seu contexto.
