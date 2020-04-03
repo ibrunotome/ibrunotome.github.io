@@ -17,3 +17,4 @@ draft: true
 translationKey: "multiple-applications-in-one-kubernetes-cluster"
 ---
 
+Give me some time to translate this by hand, it helps me improve my English :)
