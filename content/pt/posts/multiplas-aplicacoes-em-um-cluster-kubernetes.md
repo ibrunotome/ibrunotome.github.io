@@ -17,7 +17,7 @@ comments: true
 justify: false
 single: false
 license: ""
-draft: true
+draft: false
 translationKey: "multiple-applications-in-one-kubernetes-cluster"
 ---
 
