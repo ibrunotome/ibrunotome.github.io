@@ -35,7 +35,7 @@ params:
     css:
       - css/fonts.css
   comments:
-    enable: true
+    enable: false
   math:
     enable: false
     use: katex
