@@ -28,7 +28,6 @@ markup:
 
 params:
   style: dark
-  dateFormat: "02 Jan, 2006"
   readingTime: true
   logo: ""
   assets:
