@@ -1386,7 +1386,7 @@ Outras dicas para reduzir recursos consumidos pelo namespace kube-system podem s
 Como dito anteriormente, entre 1 e 5 forwarding rules o custo é o mesmo, aproximadamente `18 USD`. Porém, após o deploy de 5 aplicações temos 10 fowarding rules, totalizando mais de `50 USD`...
 
 <p align="center">
-<iframe src="https://giphy.com/embed/Sqfdtirm5xPIu01Bez" width="380" frameBorder="0"></iframe>
+<img src="https://media.giphy.com/media/Sqfdtirm5xPIu01Bez/giphy-downsized.gif" width="380px">
 </p>
 
 Possíveis soluções:

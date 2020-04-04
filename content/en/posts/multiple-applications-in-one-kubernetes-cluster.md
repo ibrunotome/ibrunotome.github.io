@@ -9,7 +9,7 @@ imgs: []
 cover: ""
 readingTime: true
 toc: true
-comments: true
+comments: false
 justify: false
 single: false
 license: ""
