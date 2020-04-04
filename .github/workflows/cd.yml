@@ -18,6 +18,5 @@ jobs:
         uses: chabad360/hugo-gh-pages@master
         with:
           githubToken: ${{ secrets.PERSONAL_TOKEN }}
-          cname: ibrunotome.github.io
-          branch: master
           repo: ibrunotome/ibrunotome.github.io
+          branch: master
