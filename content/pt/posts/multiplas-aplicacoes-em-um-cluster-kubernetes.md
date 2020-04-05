@@ -1,6 +1,6 @@
 ---
 title: "Múltiplas aplicações em um cluster Kubernetes"
-url: multiplas-aplicacoes-em-um-kluster-kubernetes
+url: multiplas-aplicacoes-em-um-cluster-kubernetes
 date: "2020-03-29T13:29:17-03:00"
 lastmod: "2020-03-29T13:29:17-03:00"
 tags: ["gcp", "laravel"]
