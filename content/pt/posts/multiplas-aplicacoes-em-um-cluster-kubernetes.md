@@ -11,7 +11,7 @@ imgs:
     "../kontena-lens.png",
   ]
 cover: "../multiple-applications-in-one-kubernetes-cluster.svg"
-ogimage: "ibrunotome.github.io/multiple-applications-in-one-kubernetes-cluster.png"
+ogimage: "https://ibrunotome.github.io/multiple-applications-in-one-kubernetes-cluster.png"
 readingTime: true
 toc: true
 comments: true
