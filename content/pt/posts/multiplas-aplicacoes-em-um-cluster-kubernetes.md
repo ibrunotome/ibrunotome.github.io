@@ -1460,7 +1460,7 @@ Possíveis soluções:
 
 ## Próximos passos
 
-O processo ao longo dos dias foi bem divertido, agora continuarrei monitorando e aprimorando o conhecimento na ferramenta. Se lhe ajudou ou se tem sugestões, deixe um comentário abaixo :)
+O processo ao longo dos dias foi bem divertido, agora continuarei monitorando e aprimorando o conhecimento na ferramenta. Se lhe ajudou ou se tem sugestões, deixe um comentário abaixo :)
 
 Conteúdos que me ajudaram no processo:
 
