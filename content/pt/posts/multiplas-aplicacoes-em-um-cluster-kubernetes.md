@@ -21,7 +21,7 @@ draft: false
 translationKey: "multiple-applications-in-one-kubernetes-cluster"
 ---
 
-Neste post mostro como preparei múltiplas aplicações para deploy em um único cluster kubernetes e também: o motivo da
+Nesse artigo mostro como preparei múltiplas aplicações para deploy em um único cluster kubernetes e também: o motivo da
 escolha do kubernetes, os benefícios, as dificuldades enfrentadas e os próximos passos.
 
 <!--more-->
@@ -185,7 +185,7 @@ spec:
     limits.memory: 1024Mi
 ```
 
-Neste arquivo defino o [Namespace](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/) da aplicação. Com namespaces é possível definir o escopo das aplicações. Assim é possível executar várias aplicações diferentes no mesmo cluster sem que interfiram uma na outra (a comunicação entre namespaces ainda é possível através de serviços expostos como mostrarei). Outra utilidade de namespaces é separar ambientes de `staging` e `production` por exemplo. Por padrão, caso namespaces não sejam definidos os deploys são realizados no namespace `default`.
+Nesse arquivo defino o [Namespace](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/) da aplicação. Com namespaces é possível definir o escopo das aplicações. Assim é possível executar várias aplicações diferentes no mesmo cluster sem que interfiram uma na outra (a comunicação entre namespaces ainda é possível através de serviços expostos como mostrarei). Outra utilidade de namespaces é separar ambientes de `staging` e `production` por exemplo. Por padrão, caso namespaces não sejam definidos os deploys são realizados no namespace `default`.
 
 No mesmo arquivo defino um deploy do tipo [Resource Quota](https://kubernetes.io/docs/concepts/policy/resource-quotas/), nele é possível definir os recursos e limites de recursos solicitados pelo namespace. No exemplo, defino que:
 
@@ -254,7 +254,7 @@ spec:
             fsType: ext4
 ```
 
-Neste arquivo defino o deployment de um volume NFS, já que o padrão [GCEPersistentDisk](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes) do GKE não suporta o tipo de acesso `ReadWriteMany` para ser lido e escrito por vários nodes ao mesmo tempo.
+Nesse arquivo defino o deployment de um volume NFS, já que o padrão [GCEPersistentDisk](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes) do GKE não suporta o tipo de acesso `ReadWriteMany` para ser lido e escrito por vários nodes ao mesmo tempo.
 
 Este volume será usado para persistir os dados do redis e também as páginas estáticas que são geradas a partir do container app e compartilhadas com o container nginx.
 
