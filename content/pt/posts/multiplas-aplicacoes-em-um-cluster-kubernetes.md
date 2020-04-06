@@ -7,10 +7,10 @@ tags: ["gcp", "laravel"]
 categories: ["devops", "kubernetes"]
 imgs:
   [
-    "../multiple-applications-in-one-kubernetes-cluster.svg",
+    "../multiple-applications-in-one-kubernetes-cluster.png",
     "../kontena-lens.png",
   ]
-cover: "../multiple-applications-in-one-kubernetes-cluster.svg"
+cover: "../multiple-applications-in-one-kubernetes-cluster.png"
 ogimage: "https://ibrunotome.github.io/multiple-applications-in-one-kubernetes-cluster.png"
 readingTime: true
 toc: true
