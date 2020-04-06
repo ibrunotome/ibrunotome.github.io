@@ -462,7 +462,7 @@ spec:
             secretName: cloudsql-instance-credentials
 ```
 
-Responsável pelo deploy da aplicação laravel com fpm, em `annotations` temos uma anotação `secret.reloader.stakater.com/reload: "env"` que irá realizar o deploy de um novo pod `sempre que a secret com nome env` for atualizada. Esse comportamento não é padrão do kubernetes e para habilitá-lo, instalamos um controller chamado [Reloader](https://github.com/stakater/Reloader) com o comando:
+Responsável pelo deploy da aplicação laravel com fpm, em `annotations` temos uma anotação `secret.reloader.stakater.com/reload: "env"` que irá realizar o deploy de um novo pod `sempre que a secret com nome env` for atualizada. Esse comportamento não é padrão do kubernetes e para habilitá-lo instalamos um controller chamado [Reloader](https://github.com/stakater/Reloader) com o comando:
 
 ```bash
 kubectl apply -f https://raw.githubusercontent.com/stakater/Reloader/master/deployments/kubernetes/reloader.yaml
@@ -516,7 +516,7 @@ spec:
         targetAverageUtilization: 90
 ```
 
-O [Horizontal Pod Autoscaler (HPA)](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/) escala automaticamente o número de pods do nosso deployment. No exemplo em [06-app-deployment.yaml](06-app-deploymentyaml), nosso deployment foi feito com duas réplicas, o HPA acima consegue irá escalar esse deployment para 1 ou 3 réplicas baseado na média de utilização de cpu e memória do deployment.
+O [Horizontal Pod Autoscaler (HPA)](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/) escala automaticamente o número de pods do nosso deployment. No exemplo em [06-app-deployment.yaml](06-app-deploymentyaml), nosso deployment foi feito com duas réplicas, o HPA acima irá escalar esse deployment para 1 ou 3 réplicas baseado na média de utilização de cpu e memória do deployment.
 
 ###### 08-app-service.yaml
 
