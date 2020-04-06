@@ -55,25 +55,25 @@ Três dessas aplicações principais rodavam individualmente (uma aplicação po
 docker-compose up -d
 ```
 
-Mesmo com todo o processo de deploy automatizado, sem gerar dores de cabeça, `a má utilização dos recursos` por parte de duas aplicações e a `falta de recursos disponíveis` para uma das aplicações me incomodava:
+Mesmo com todo o processo de deploy automatizado, sem gerar dores de cabeça, `o desperdício de recursos` por parte de duas aplicações e a `falta de recursos disponíveis` para uma das aplicações me incomodava:
 
-- Uma das aplicações (painel de administração, pouquíssimas pessoas com acesso) consumia no máximo 10% da CPU somando
+- Uma das aplicações (painel de administração, poucas pessoas com acesso) consumia no máximo 20% da CPU somando
   todos os containers (nginx, app, schedule, queue, redis, certbot) e no máximo 2 dos 3,75GB de RAM.
-- Uma segunda aplicação com métricas e situação bem parecida a mencionada acima.
-- Uma terceira aplicação, com situação oposta as de cima, com métricas recomendando o upgrade da VM para pelo menos 6GB
+- Uma segunda aplicação com métricas e situação bem parecida à mencionada acima.
+- Uma terceira aplicação, com situação oposta, com métricas recomendando o upgrade da VM para pelo menos 6GB
   de RAM. Essa aplicação executa jobs em queues, pode ficar alguns minutos sem receber nenhum novo job, porém, quando recebe um novo job ela deve executar todos rapidamente, além de poder receber novos jobs enquanto executa o antigo e já ter que iniciar a execução desse novo job sem espera. No framework utilizado nessa aplicação (Laravel), cada worker utiliza pelo menos 32MB de RAM, se configurarmos um valor máximo de 120 workers, já são necessários pelo menos 3840MB de memória RAM, excedendo os 3,75GB de RAM dessa VM. Além do fato de muitas vezes os 120 workers não serem suficientes para uma entrega rápida, ocasionando em um wait time longo para executar os jobs nas queues:
 
   ![Longo tempo de espera para execução dos jobs no horizon](../horizon-queue-long-wait-time.png)
 
   Essa aplicação definivamente precisava de mais recursos enquanto as outras duas citadas anteriormente não utilizavam todos os recursos disponíveis.
 
-- Uma quarta aplicação, um MVP (_Minimum viable product_) rodando em um único container no _[cloud.run](https://cloud.run)_, já estava validada e precisava evoluir com implementação de queues e cache por exemplo. Como o cloud.run é feito para conteúdo _stateless_ e não possui acesso a redis (pelo menos não de forma fácil, sem ter que expor o redis de alguma VM por exemplo), era necessário tirá-lo dali.
+- Uma quarta aplicação, um MVP (_Minimum viable product_) rodando em um único container no _[cloud.run](https://cloud.run)_, já estava validada e precisava evoluir com implementação de queues e cache. Como o cloud.run é feito para conteúdo _stateless_ e não possui acesso a redis (pelo menos não de forma fácil, sem ter que expor o redis de alguma VM por exemplo), era necessário tirá-lo dali.
 
 - Uma quinta aplicação, também em container único, rodava bem no cloud.run e, diferentemente da anterior não precisa de queues. Porém, como possui muitos acessos no cloud.run e o tempo de execução de CPU de cada request dessa aplicação é alto, os custos no cloud.run começaram a incomodar (abaixo os preços do cloud.run com e sem free tier):
 
   ![Cloud Run Pricing](../cloud-run-pricing.png)
 
-Uma solução viável para otimização da utilização de recursos seria executar as aplicações em um cluster, possuindo assim o controle de quanto hardware dedicar a cada aplicação e abrindo possibilidade para escalabilidade da terceira aplicação mencionada anteriormente. Para orquestrar os contâiners no cluster, dentre as opções disponíveis eu teria que escolher bem entre duas: Swarm ou Kubernetes, pois possuía um pouco de conhecimento prévio de ambas as ferramentas.
+Uma solução viável para otimização da utilização de recursos seria executar as aplicações em um cluster, possuindo assim o controle de quanto hardware dedicar a cada aplicação e abrindo possibilidade para escalabilidade da terceira aplicação mencionada anteriormente. Para orquestrar os contâiners no cluster, dentre as opções disponíveis eu teria que escolher bem entre duas: Swarm ou Kubernetes, pois possuía um pouco de conhecimento prévio em ambas as ferramentas.
 
 ## Por que Kubernetes?
 
@@ -138,13 +138,13 @@ kubectl config set-context gke_yourprojectname_yourregion-zone_yourclustername
 
 ## Preparando os containers
 
-Como dito no primeiro tópico, as aplicações já rodavam containerizadas. Um container dedicado a aplicação web, um para as queues, um para a execução de schedules, um container redis e um nginx. O container certbot foi descartado pois foi adotada outra abordagem para gerenciamento dos certificados SSL.
+Como dito no primeiro tópico, as aplicações já rodavam containerizadas. Um container dedicado para a aplicação web, um para as queues, um para a execução de schedules, um container redis e um nginx. O container certbot foi descartado pois foi adotada outra abordagem para gerenciamento dos certificados SSL.
 
 Caso você ainda não tenha containerizado sua aplicação, prepare-a de modo que respeite o [Twelve-Factor App](https://12factor.net).
 
 ## Preparando os manifestos
 
-Aqui vem o primeiro baque pra quem era acostumado a subir o ambiente de produção inteiro com um único arquivo
+Aqui vem o primeiro susto para quem era acostumado a subir o ambiente de produção inteiro com um único arquivo
 docker-compose.yaml 🙃
 
 <p align="center">
@@ -185,18 +185,18 @@ spec:
     limits.memory: 1024Mi
 ```
 
-Neste arquivo defino o [Namespace](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/) da aplicação. Com namespaces é possível definir o escopo das aplicações. Assim é possível executar várias aplicações diferentes no mesmo cluster sem que interfiram uma na outra (a comunicação entre namespaces ainda é possível através de serviços expostos como mostrarei). Outro exemplo da utilidade de namespaces é separar ambientes de `staging` e `production`. Por padrão, caso namespaces não sejam definidos, os deploys são realizados no namespace `default`.
+Neste arquivo defino o [Namespace](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/) da aplicação. Com namespaces é possível definir o escopo das aplicações. Assim é possível executar várias aplicações diferentes no mesmo cluster sem que interfiram uma na outra (a comunicação entre namespaces ainda é possível através de serviços expostos como mostrarei). Outra utilidade de namespaces é separar ambientes de `staging` e `production` por exemplo. Por padrão, caso namespaces não sejam definidos os deploys são realizados no namespace `default`.
 
 No mesmo arquivo defino um deploy do tipo [Resource Quota](https://kubernetes.io/docs/concepts/policy/resource-quotas/), nele é possível definir os recursos e limites de recursos solicitados pelo namespace. No exemplo, defino que:
 
-- `requests.cpu: 100m` - todos os componentes do namespace podem requisitar (somados) no máximo 100 millicores de cpu (1vCPU = 1000m, valores de cpu podem ser definidos de 1m a 1000m).
+- `requests.cpu: 100m` - todos os componentes do namespace podem requisitar (somados) no máximo 100 millicores de cpu (1vCPU = 1000m, valores de cpu podem ser definidos a partir de 1m).
 
 - `requests.memory: 512Mi` - todos os componentes do namespace podem requisitar (somados) no máximo 512Mi de memória (1 Mebibyte (MiB) = (1024)^2 bytes = 1048576 bytes).
 
-- `limits.cpu: 200m` - todos os componentes do namespace (apesar de requisitar 100m de cpu definidos anteriormente)
-  podem utilizar o máximo 200 millicores de cpu.
+- `limits.cpu: 400m` - todos os componentes do namespace (apesar de requisitar 100m de cpu definidos anteriormente)
+  podem utilizar o máximo 400 millicores de cpu.
 
-- `limits.memory: 1024Mi` - todos os componentes do namespace (apesar de requisitar 512Mi de memória definidos anteriormente) podem utilizar no máximo 1024Mi de memória.
+- `limits.memory: 1280Mi` - todos os componentes do namespace (apesar de requisitar 512Mi de memória definidos anteriormente) podem utilizar no máximo 1280Mi de memória.
 
 Quando os limites de cpu definidos são atingidos, a aplicação começa a sofrer `throttled` de cpu, ou seja, sua performance é afetada.
 
@@ -467,13 +467,13 @@ Responsável pelo deploy da aplicação laravel com fpm, em `annotations` temos 
 kubectl apply -f https://raw.githubusercontent.com/stakater/Reloader/master/deployments/kubernetes/reloader.yaml
 ```
 
-- `replicas: 2` - definimos que o deploy irá criar 2 pods
-- `revisionHistoryLimit: 1` - só teremos acesso a uma versão anterior a atual para rollback
+- `replicas: 2` - definimos que o deploy irá criar 2 pods.
+- `revisionHistoryLimit: 1` - só teremos acesso a uma versão anterior a atual para rollback.
 
 Em `strategy`:
 
-- `type: RollingUpdate` - Nosso deploy é do tipo [Rolling Update](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#rolling-update-deployment)
-- `maxSurge: 1` - Só pode surgir um novo pod por vez
+- `type: RollingUpdate` - Nosso deploy é do tipo [Rolling Update](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#rolling-update-deployment).
+- `maxSurge: 1` - Só pode surgir um novo pod por vez.
 - `maxUnavailable: 50%` - No mínimo metade dos pods devem estar disponíveis durante o deploy, ou seja, no exemplo com `replicas: 2` e `maxSurge: 1`, um novo pod surgirá, então um pod antigo será terminado (respeitando o `maxUnavailable: 50%`), então um novo pod surgirá, e o último pod antigo será terminado.
 
 Em `containers`:
@@ -515,7 +515,7 @@ spec:
         targetAverageUtilization: 90
 ```
 
-O [Horizontal Pod Autoscaler (HPA)](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/) escala automaticamente o número de pods do nosso deployment. No exemplo em 06-app-deployment.yaml, nosso deployment foi feito com duas réplicas, o HPA acima consegue irá escalar esse deployment para 1 ou 3 réplicas baseado na média de utilização de cpu e memória do deployment.
+O [Horizontal Pod Autoscaler (HPA)](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/) escala automaticamente o número de pods do nosso deployment. No exemplo em [06-app-deployment.yaml](06-app-deploymentyaml), nosso deployment foi feito com duas réplicas, o HPA acima consegue irá escalar esse deployment para 1 ou 3 réplicas baseado na média de utilização de cpu e memória do deployment.
 
 ###### 08-app-service.yaml
 
@@ -711,7 +711,7 @@ spec:
             secretName: cloudsql-instance-credentials
 ```
 
-Se você já usa kubernetes provavelmente pensou "existe um controller [CronJob](https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/) pra isso". Sim, porém meus crons são executados a cada minuto, o processo de um controller disparar um job, subir um pod, executar o container, matar o pod, e repetir de novo alguns segundos depois não me parece legal. [Não sou o único a adotar essa abordagem para conjobs a cada minuto](https://youtu.be/MoIdU0J0f0E?t=939).
+Se você já usa kubernetes provavelmente pensou "existe um controller [CronJob](https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/) para isso". Sim, porém meus crons são executados a cada minuto, o processo de um controller disparar um job, subir um pod, executar o container, matar o pod, e repetir de novo alguns segundos depois não me parece legal. [Não sou o único a adotar essa abordagem para conjobs a cada minuto](https://youtu.be/MoIdU0J0f0E?t=939).
 
 ###### 12-nginx-configmap.yaml
 
@@ -774,7 +774,7 @@ data:
         }
 
         if ($http_x_forwarded_proto = "http") {
-          rewrite ^ https://yourapp1domain.com$request_uri? permanent;
+          rewrite ^ https://yourapp1.com$request_uri? permanent;
         }
 
         add_header 'Referrer-Policy' 'same-origin';
@@ -998,7 +998,7 @@ Criaremos um ip global para ser utilizado pela aplicação:
 gcloud compute addresses create yourapp1-global-ip-name --global
 ```
 
-O ingress que irá expor a aplicação para a internet. Em `annotations` adicionamos o nome do ip global criado acima e o nome dos certificados gerenciados criados no passo anterior. Em `spec` definimos que todas as requests serão encaminhadas para o serviço nginx na porta 80, criado em [15-nginx-service.yaml](#15-nginx-serviceyaml).
+O ingress irá expor a aplicação para a internet. Em `annotations` adicionamos o nome do IP global criado acima e o nome dos certificados gerenciados criados no passo anterior. Em `spec` definimos que todas as requests serão encaminhadas para o serviço nginx na porta 80, criado em [15-nginx-service.yaml](#15-nginx-serviceyaml).
 
 Por trás dos panos, um load balancer é criado com duas forwarding rules (http e https) apontando para esse ingress e sua `spec`.
 
@@ -1037,11 +1037,11 @@ Ou todos os arquivos da pasta
 kubectl apply -f k8s/
 ```
 
-O mesmo se aplica para o delete com o `kubectl delete`
+O mesmo se aplica para o delete com o `kubectl delete`.
 
 ## Automatizando o processo de testes e deploy com um pipeline de CI/CD
 
-O [Google KMS](https://cloud.google.com/kms) é um serviço quer permite gerenciar chaves de criptografia. Com ele podemos criptografar arquivos de configuração/environment variables e `até adicioná-los ao controle de versão` de forma segura, pois estarão criptografados.
+O [Google KMS](https://cloud.google.com/kms) é um serviço quer permite gerenciar chaves criptográficas. Com ele podemos criptografar arquivos de configuração/environment variables e `até adicioná-los ao controle de versão` de forma segura, pois estarão criptografados.
 
 Após [ativar a API do KMS](https://console.developers.google.com/apis/library/cloudkms.googleapis.com), crie um grupo de chaves:
 
@@ -1082,7 +1082,7 @@ gcloud kms encrypt --location global \
 
 Agora ambos podem ser commitados de forma segura :)
 
-Utilizo o [Cloud Build](https://cloud.google.com/cloud-build/) para o processo de CI/CD, separo os processos duas [triggers](https://console.cloud.google.com/cloud-build/triggers) e dois arquivos: `cloudbuild.ci.yaml` e `cloudbuild.cd.yaml`. Lembre-se de adicionar as `variáveis de substituição` nas triggers criadas no Cloud Build:
+Utilizo o [Cloud Build](https://cloud.google.com/cloud-build/) para o processo de CI/CD, separo os processos em duas [triggers](https://console.cloud.google.com/cloud-build/triggers) e dois arquivos: `cloudbuild.ci.yaml` e `cloudbuild.cd.yaml`. Lembre-se de adicionar as `variáveis de substituição` nas triggers criadas no Cloud Build:
 
 - `_CLUSTER` - o nome do seu cluster
 - `_KEY` - sua chave kms criada anteriormente
@@ -1261,10 +1261,10 @@ steps:
 
 Não vou entrar em detalhes sobre o processo de CI em `cloudbuild.ci.yaml` pois não é o propósito. Em resumo sobre o processo de CD em `cloudbuild.cd.yaml`:
 
-- Os arquivos de configuração/environment variables são descriptografados
+- Os arquivos de configuração/environment variables são descriptografados.
 - A criação secret `env` utilizada nos manifestos de `06-app-deployment`, `09-queue-deployment` e `11-schedule-deployment` é simulada com `--dry-run` a partir do arquivo .env que foi descriptografado e seu output é salvo em `k8s/06.0-app-secret.yaml`.
 - O mesmo processo ser repete para a service account utilizada para que o cloudsqlproxy tenha acesso ao Cloud SQL.
-- A imagem docker é criada e tageada com a release tag do repositório e com a tag latest.
+- A imagem docker é criada e tageada com a release tag do repositório e também com a tag latest.
 - A palavra TAG_NAME é substituída pela release tag do repositório nos arquivos de manifesto.
 - O deploy dos manifestos é realizado.
 - Os assets da aplicação são copiados para um bucket.
@@ -1347,7 +1347,7 @@ Com o Kubernetes em si, nenhum até o momento. Porém, aqui vão algumas dicas p
 
 ###### Reduza os recursos utilizado pelo namespace kube-system
 
-Por padrão o GKE declara um limit de 1 vCPU para o `fluentd` utilizado na captura de logs, para um cluster pequeno como nosso esse limite está exagerado. Abaixo uma ScalingPolicy das requests and limits do fluentd:
+Por padrão o GKE declara um limit de 1 vCPU para o `fluentd` utilizado na captura de logs, esse limite está exagerado para um cluster pequeno como o nosso. Abaixo uma ScalingPolicy das requests and limits do fluentd:
 
 ```yaml
 apiVersion: scalingpolicy.kope.io/v1alpha1
@@ -1439,7 +1439,7 @@ Possíveis soluções:
 
   Vantagens:
 
-  - Sua aplicação continua usufluindo do [load balancer do Google](https://cloud.google.com/load-balancing).
+  - Sua aplicação continua utilizando o [load balancer do Google](https://cloud.google.com/load-balancing).
   - Os certificados SSL auto gerenciados pelo Google ainda funcionam.
 
   Desvantagens:
@@ -1459,7 +1459,7 @@ Possíveis soluções:
 
 ## Próximos passos
 
-Continuar monitorando e aprimorando o conhecimento na ferramenta. O processo ao longo dos dias foi bem divertido. Se lhe ajudou ou se tem sugestões, deixe um comentário abaixo :)
+O processo ao longo dos dias foi bem divertido, agora continuarrei monitorando e aprimorando o conhecimento na ferramenta. Se lhe ajudou ou se tem sugestões, deixe um comentário abaixo :)
 
 Conteúdos que me ajudaram no processo:
 
@@ -1474,4 +1474,4 @@ Conteúdos que me ajudaram no processo:
   <img src="../keep-it-simple.jpeg" alt="Keep it simle stupid!">
 </p>
 
-Só se aventure com Kubernetes `para aprendizado` ou `se fizer sentido` para seu projeto `e resolver algum problema existente`. Não complique o que está funcionando perfeitamente.
+Só se aventure com Kubernetes `para aprendizado` ou `se fizer sentido` para seu projeto `e resolver algum problema existente` como foi mostrado nesse artigo. Não complique o que está funcionando perfeitamente.
