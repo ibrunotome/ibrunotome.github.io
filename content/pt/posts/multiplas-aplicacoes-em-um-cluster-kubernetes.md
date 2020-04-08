@@ -48,7 +48,7 @@ Tópicos:
 
 ## O problema inicial
 
-Temos pelo menos 5 aplicações principais rodando no _[Google Cloud Platform (GCP)](https://cloud.google.com)_ e também algumas funções que foram desacopladas de uma API e hoje são executadas a partir de _[google functions](https://cloud.google.com/functions)_, acessadas pelas aplicações principais.
+Temos pelo menos 5 aplicações principais rodando no [Google Cloud Platform (GCP)](https://cloud.google.com) e também algumas funções que foram desacopladas de uma API e hoje são executadas a partir de [google functions](https://cloud.google.com/functions), acessadas pelas aplicações principais.
 
 Três dessas aplicações principais rodavam individualmente (uma aplicação por VM) em VMs do tipo n1-standard-1 (1vCPU e 3,75GB de RAM). Todas as aplicações containerizadas e o deploy em produção realizado por um simples:
 
@@ -68,7 +68,7 @@ Mesmo com todo o processo de deploy automatizado, sem gerar dores de cabeça, `o
 
   Essa aplicação definivamente precisava de mais recursos enquanto as outras duas citadas anteriormente não utilizavam todos os recursos disponíveis.
 
-- Uma quarta aplicação, um MVP (_Minimum viable product_) rodando em um único container no _[cloud.run](https://cloud.run)_, já estava validada e precisava evoluir com implementação de queues e cache. Como o cloud.run é feito para conteúdo _stateless_ e não possui acesso a redis (pelo menos não de forma fácil, sem ter que expor o redis de alguma VM por exemplo), era necessário tirá-lo dali.
+- Uma quarta aplicação, um MVP (_Minimum viable product_) rodando em um único container no [cloud.run](https://cloud.run), já estava validada e precisava evoluir com implementação de queues e cache. Como o cloud.run é feito para conteúdo _stateless_ e não possui acesso a redis (pelo menos não de forma fácil, sem ter que expor o redis de alguma VM por exemplo), era necessário tirá-lo dali.
 
 - Uma quinta aplicação, também em container único, rodava bem no cloud.run e, diferentemente da anterior não precisa de queues. Porém, como possui muitos acessos no cloud.run e o tempo de execução de CPU de cada request dessa aplicação é alto, os custos no cloud.run começaram a incomodar (abaixo os preços do cloud.run com e sem free tier):
 
@@ -180,24 +180,23 @@ metadata:
   namespace: yourapp1
 spec:
   hard:
-    requests.cpu: 100m
-    requests.memory: 512Mi
-    limits.cpu: 200m
-    limits.memory: 1024Mi
+    requests.cpu: 300m
+    requests.memory: 1536Mi
+    limits.cpu: 500m
+    limits.memory: 2048Mi
 ```
 
 Nesse arquivo defino o [Namespace](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/) da aplicação. Com namespaces é possível definir o escopo das aplicações. Assim é possível executar várias aplicações diferentes no mesmo cluster sem que interfiram uma na outra (a comunicação entre namespaces ainda é possível através de serviços expostos como mostrarei). Outra utilidade de namespaces é separar ambientes de `staging` e `production` por exemplo. Por padrão, caso namespaces não sejam definidos os deploys são realizados no namespace `default`.
 
 No mesmo arquivo defino um deploy do tipo [Resource Quota](https://kubernetes.io/docs/concepts/policy/resource-quotas/), nele é possível definir os recursos e limites de recursos solicitados pelo namespace. No exemplo, defino que:
 
-- `requests.cpu: 100m` - todos os componentes do namespace podem requisitar (somados) no máximo 100 millicores de cpu (1vCPU = 1000m, valores de cpu podem ser definidos a partir de 1m).
+- `requests.cpu: 300m` - todos os componentes do namespace somados podem requisitar (somados) no máximo 200 millicores de cpu (1vCPU = 1000m, valores de cpu podem ser definidos a partir de 1m).
 
-- `requests.memory: 512Mi` - todos os componentes do namespace podem requisitar (somados) no máximo 512Mi de memória (1 Mebibyte (MiB) = (1024)^2 bytes = 1048576 bytes).
+- `requests.memory: 1536Mi` - todos os componentes do namespace somados podem requisitar (somados) no máximo 1536Mi de memória (1 Mebibyte (MiB) = (1024)^2 bytes = 1048576 bytes).
 
-- `limits.cpu: 400m` - todos os componentes do namespace (apesar de requisitar 100m de cpu definidos anteriormente)
-  podem utilizar o máximo 400 millicores de cpu.
+- `limits.cpu: 500m` - todos os componentes do namespace somados (apesar de poderem requisitar 300m de cpu definidos anteriormente) podem utilizar o máximo 500 millicores de cpu.
 
-- `limits.memory: 1280Mi` - todos os componentes do namespace (apesar de requisitar 512Mi de memória definidos anteriormente) podem utilizar no máximo 1280Mi de memória.
+- `limits.memory: 2048Mi` - todos os componentes do namespace somados (apesar de poderem requisitar 1536Mi de memória definidos anteriormente) podem utilizar no máximo 2048Mi de memória.
 
 Quando os limites de cpu definidos são atingidos, a aplicação começa a sofrer `throttled` de cpu, ou seja, sua performance é afetada.
 
