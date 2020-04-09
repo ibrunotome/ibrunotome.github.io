@@ -190,7 +190,7 @@ Nesse arquivo defino o [Namespace](https://kubernetes.io/docs/concepts/overview/
 
 No mesmo arquivo defino um deploy do tipo [Resource Quota](https://kubernetes.io/docs/concepts/policy/resource-quotas/), nele é possível definir os recursos e limites de recursos solicitados pelo namespace. No exemplo, defino que:
 
-- `requests.cpu: 300m` - todos os componentes do namespace somados podem requisitar (somados) no máximo 200 millicores de cpu (1vCPU = 1000m, valores de cpu podem ser definidos a partir de 1m).
+- `requests.cpu: 300m` - todos os componentes do namespace somados podem requisitar (somados) no máximo 300 millicores de cpu (1vCPU = 1000m, valores de cpu podem ser definidos a partir de 1m).
 
 - `requests.memory: 1536Mi` - todos os componentes do namespace somados podem requisitar (somados) no máximo 1536Mi de memória (1 Mebibyte (MiB) = (1024)^2 bytes = 1048576 bytes).
 
