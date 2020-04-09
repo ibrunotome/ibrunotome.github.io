@@ -202,7 +202,7 @@ Quando os limites de cpu definidos são atingidos, a aplicação começa a sofre
 
 Quando os limites de memória são atingidos, não é possível "comprimir" a memória como é feito com cpu, e seu [Pod](https://kubernetes.io/docs/concepts/workloads/pods/pod-overview/) é terminado.
 
-Quando um deploy de uma nova versão da sua aplicação é feita, caso o limite de cpu ou memória seja excedido, os pods não seram executados e ficarão com o estado [Evicted](https://kubernetes.io/docs/tasks/administer-cluster/out-of-resource/#eviction-policy).
+Quando um deploy de uma nova versão da sua aplicação é feita, caso o limite de cpu ou memória seja excedido, os pods não serão executados e ficarão com o estado [Evicted](https://kubernetes.io/docs/tasks/administer-cluster/out-of-resource/#eviction-policy).
 
 A definição de ResourceQuota para um namespace é opcional, porém garante que uma aplicação não consuma recursos demasiadamente.
 
