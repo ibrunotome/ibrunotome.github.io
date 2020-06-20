@@ -1343,7 +1343,11 @@ spec:
 
 ## Problemas identificados
 
-Com o Kubernetes em si, nenhum até o momento. Porém, aqui vão algumas dicas para que alguém que esteja lendo não passe pelas mesmas situações que passei:
+Aqui vão algumas dicas para que alguém que esteja lendo não passe pelas mesmas situações que passei:
+
+###### Ative o Network Plugin do GKE
+
+Durante as primeiras semanas me deparava com uma mensagem ["network is not ready: runtime network not ready: NetworkReady=false reason:NetworkPluginNotReady"](https://stackoverflow.com/q/61433766/3238672) e os pods reinicializando uma ou duas vezes na semana. A solução é ativar o Network plugin do GKE, que utiliza o [Calico](http://projectcalico.org) por trás dos panos.
 
 ###### Reduza os recursos utilizado pelo namespace kube-system
 
