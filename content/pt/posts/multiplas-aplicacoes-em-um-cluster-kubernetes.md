@@ -209,7 +209,7 @@ A definição de ResourceQuota para um namespace é opcional, porém garante que
 ###### 02-nfs-server-deployment.yaml
 
 ```yaml
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: nfs-server
@@ -978,7 +978,7 @@ Os certificados SSL auto gerenciados pelo Google. Mais detalhes no tópico [Adic
 ###### 17-ingress.yaml
 
 ```yaml
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
   name: nginx
