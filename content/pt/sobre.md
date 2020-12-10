@@ -17,9 +17,7 @@ draft: false
 translationKey: "about"
 ---
 
-Desenvolvedor com experiência em arquitetura de sistemas, otimização de performance, containerização, automação e infraestrutura como código.
-
-O blog foi criado para compartilhar experiências, principalmente relacionadas aos tópicos acima.
+Um desenvolvedor que adora criar seus negócios online. Persistência 🚀
 
 - GitHub: https://github.com/ibrunotome/
 - Linkedin: http://linkedin.com/in/ibrunotome/

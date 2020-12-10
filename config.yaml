@@ -1,4 +1,4 @@
-baseURL: "https://ibrunotome.github.io"
+baseURL: 'https://ibrunotome.github.io'
 title: Bruno Tomé
 theme: hugo-notepadium
 copyright: ©2020 Bruno Tomé.
@@ -31,12 +31,12 @@ params:
   style: dark
   dateFormat: 02 Jan, 2006
   readingTime: true
-  logo: ""
-  assets:
-    css:
-      - css/fonts.css
+  logo: ''
+  slogan: ''
+  license: ''
+  fullRss: false
   comments:
-    enable: false
+    enable: true
   math:
     enable: false
     use: katex
@@ -44,12 +44,20 @@ params:
     use: none
     theme: xcode
     darkTheme: xcode-dark
+  share:
+    enable: false
+    addThisId: ''
+    inlineToolId: ''
   nav:
     showCategories: true
     showTags: true
     custom:
       - title: Sobre
         url: /about
+  beian:
+    icp: ''
+    gongan: ''
+    code: ''
 
 permalinks:
   posts: "/:title"
