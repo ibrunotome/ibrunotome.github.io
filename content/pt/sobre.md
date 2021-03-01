@@ -1,23 +1,14 @@
 ---
 title: "Sobre"
-url: "about"
+url: "sobre"
 date: "2020-03-29T13:29:17-03:00"
-lastmod: "2020-03-29T13:29:17-03:00"
-tags: []
-categories: []
-imgs: []
-cover: ""
-readingTime: true
-toc: true
-comments: false
-justify: false
-single: false
-license: ""
+lastmod: "2021-02-28T13:29:17-03:00"
+readingTime: false
+showtoc: false
+comments: true
 draft: false
-translationKey: "about"
+translationKey: "sobre"
 ---
 
-Um desenvolvedor que adora criar seus negócios online. Persistência 🚀
+Sócio desenvolvedor de alguns e-commerces.
 
-- GitHub: https://github.com/ibrunotome/
-- Linkedin: http://linkedin.com/in/ibrunotome/

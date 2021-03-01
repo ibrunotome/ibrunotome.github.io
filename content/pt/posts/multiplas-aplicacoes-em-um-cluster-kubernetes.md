@@ -2,7 +2,7 @@
 title: "Múltiplas aplicações em um cluster Kubernetes"
 url: multiplas-aplicacoes-em-um-cluster-kubernetes
 date: "2020-03-29T13:29:17-03:00"
-lastmod: "2020-04-06T13:29:00-03:00"
+lastmod: "2021-02-28T13:29:00-03:00"
 tags: ["gcp", "laravel"]
 categories: ["devops", "kubernetes"]
 imgs:
@@ -10,41 +10,14 @@ imgs:
     "../multiple-applications-in-one-kubernetes-cluster.png",
     "../kontena-lens.png",
   ]
-cover: "../multiple-applications-in-one-kubernetes-cluster.png"
 ogimage: "https://ibrunotome.github.io/multiple-applications-in-one-kubernetes-cluster.png"
-readingTime: true
-toc: true
 comments: true
-justify: false
-single: false
-license: ""
 draft: false
 translationKey: "multiple-applications-in-one-kubernetes-cluster"
 ---
 
 Nesse artigo mostro como preparei múltiplas aplicações para deploy em um único cluster kubernetes e também: o motivo da
 escolha do kubernetes, os benefícios, as dificuldades enfrentadas e os próximos passos.
-
-<!--more-->
-
----
-
-Tópicos:
-
-- [O problema inicial](#o-problema-inicial)
-- [Por que Kubernetes?](#por-que-kubernetes)
-- [Criando o cluster kubernetes](#criando-o-cluster-kubernetes)
-- [Preparando os containers](#preparando-os-containers)
-- [Preparando os manifestos](#preparando-os-manifestos)
-- [Realizando o deploy dos manifestos](#realizando-o-deploy-dos-manifestos)
-- [Adicionando certificados SSL auto gerenciados](#adicionando-certificados-ssl-auto-gerenciados)
-- [Automatizando o processo de teste e deploy com um pipeline CI/CD](#automatizando-o-processo-de-testes-e-deploy-com-um-pipeline-de-cicd)
-- [Monitorando o cluster com Kontena Lens e métricas Prometheus](#monitorando-o-cluster-com-kontena-lens-e-métricas-prometheus)
-- [Realizando o deploy de outras aplicações](#realizando-o-deploy-de-outras-aplicações)
-- [Problemas identificados](#problemas-identificados)
-- [Próximos passos](#próximos-passos)
-
----
 
 ## O problema inicial
 
@@ -64,7 +37,7 @@ Mesmo com todo o processo de deploy automatizado, sem gerar dores de cabeça, `o
 - Uma terceira aplicação, com situação oposta, com métricas recomendando o upgrade da VM para pelo menos 6GB
   de RAM. Essa aplicação executa jobs em queues, pode ficar alguns minutos sem receber nenhum novo job, porém, quando recebe um novo job ela deve executar todos rapidamente, além de poder receber novos jobs enquanto executa o antigo e já ter que iniciar a execução desse novo job sem espera. No framework utilizado nessa aplicação (Laravel), cada worker utiliza pelo menos 32MB de RAM, se configurarmos um valor máximo de 120 workers, já são necessários pelo menos 3840MB de memória RAM, excedendo os 3,75GB de RAM dessa VM. Além do fato de muitas vezes os 120 workers não serem suficientes para uma entrega rápida, ocasionando em um wait time longo para executar os jobs nas queues:
 
-  ![Longo tempo de espera para execução dos jobs no horizon](../horizon-queue-long-wait-time.png)
+![Longo tempo de espera para execução dos jobs no horizon](../horizon-queue-long-wait-time.png)
 
   Essa aplicação definivamente precisava de mais recursos enquanto as outras duas citadas anteriormente não utilizavam todos os recursos disponíveis.
 
@@ -72,7 +45,7 @@ Mesmo com todo o processo de deploy automatizado, sem gerar dores de cabeça, `o
 
 - Uma quinta aplicação, também em container único, rodava bem no cloud.run e, diferentemente da anterior não precisa de queues. Porém, como possui muitos acessos no cloud.run e o tempo de execução de CPU de cada request dessa aplicação é alto, os custos no cloud.run começaram a incomodar (abaixo os preços do cloud.run com e sem free tier):
 
-  ![Cloud Run Pricing](../cloud-run-pricing.png)
+![Cloud Run Pricing](../cloud-run-pricing.png)
 
 Uma solução viável para otimização da utilização de recursos seria executar as aplicações em um cluster, possuindo assim o controle de quanto hardware dedicar a cada aplicação e abrindo possibilidade para escalabilidade da terceira aplicação mencionada anteriormente. Para orquestrar os contâiners no cluster, dentre as opções disponíveis eu teria que escolher bem entre duas: Swarm ou Kubernetes, pois possuía um pouco de conhecimento prévio em ambas as ferramentas.
 
@@ -148,9 +121,7 @@ Caso você ainda não tenha containerizado sua aplicação, prepare-a de modo qu
 Aqui vem o primeiro susto para quem era acostumado a subir o ambiente de produção inteiro com um único arquivo
 docker-compose.yaml 🙃
 
-<p align="center">
-  <img src="../k8s-first-application-manifests.png" width="400px">
-</p>
+![Manifestos k8s](../k8s-first-application-manifests.png)
 
 Mostrarei o propósito de cada arquivo. Veja detalhes e conceitos do Kubernetes em sua [documentação](https://kubernetes.io/docs/concepts/).
 
@@ -1474,8 +1445,6 @@ Conteúdos que me ajudaram no processo:
 
 Último recado:
 
-<p align="center">
-  <img src="../keep-it-simple.jpeg" alt="Keep it simle stupid!">
-</p>
+![Keep it simple stupid!](../keep-it-simple.jpeg)
 
 Só se aventure com Kubernetes `para aprendizado` ou `se fizer sentido` para seu projeto `e resolver algum problema existente` como foi mostrado nesse artigo. Não complique o que está funcionando perfeitamente.

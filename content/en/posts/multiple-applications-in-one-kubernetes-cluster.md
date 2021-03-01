@@ -6,7 +6,6 @@ lastmod: "2020-03-29T13:29:17-03:00"
 tags: []
 categories: []
 imgs: []
-cover: ""
 readingTime: true
 toc: true
 comments: false
