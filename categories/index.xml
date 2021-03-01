@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Categories on Bruno Tomé</title>
+    <link>https://ibrunotome.github.io/categories/</link>
+    <description>Recent content in Categories on Bruno Tomé</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>pt</language>
+    <lastBuildDate>Sun, 29 Mar 2020 13:29:17 -0300</lastBuildDate><atom:link href="https://ibrunotome.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>devops</title>
+      <link>https://ibrunotome.github.io/categories/devops/</link>
+      <pubDate>Sun, 29 Mar 2020 13:29:17 -0300</pubDate>
+      
+      <guid>https://ibrunotome.github.io/categories/devops/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>kubernetes</title>
+      <link>https://ibrunotome.github.io/categories/kubernetes/</link>
+      <pubDate>Sun, 29 Mar 2020 13:29:17 -0300</pubDate>
+      
+      <guid>https://ibrunotome.github.io/categories/kubernetes/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>

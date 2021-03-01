@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>kubernetes on Bruno Tomé</title>
+    <link>https://ibrunotome.github.io/categories/kubernetes/</link>
+    <description>Recent content in kubernetes on Bruno Tomé</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>pt</language>
+    <lastBuildDate>Sun, 29 Mar 2020 13:29:17 -0300</lastBuildDate><atom:link href="https://ibrunotome.github.io/categories/kubernetes/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Múltiplas aplicações em um cluster Kubernetes</title>
+      <link>https://ibrunotome.github.io/multiplas-aplicacoes-em-um-cluster-kubernetes/</link>
+      <pubDate>Sun, 29 Mar 2020 13:29:17 -0300</pubDate>
+      
+      <guid>https://ibrunotome.github.io/multiplas-aplicacoes-em-um-cluster-kubernetes/</guid>
+      <description>Nesse artigo mostro como preparei múltiplas aplicações para deploy em um único cluster kubernetes e também: o motivo da escolha do kubernetes, os benefícios, as dificuldades enfrentadas e os próximos passos.
+O problema inicial Temos pelo menos 5 aplicações principais rodando no Google Cloud Platform (GCP) e também algumas funções que foram desacopladas de uma API e hoje são executadas a partir de google functions, acessadas pelas aplicações principais.
+Três dessas aplicações principais rodavam individualmente (uma aplicação por VM) em VMs do tipo n1-standard-1 (1vCPU e 3,75GB de RAM).</description>
+    </item>
+    
+  </channel>
+</rss>

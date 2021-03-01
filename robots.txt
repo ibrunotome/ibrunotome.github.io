@@ -1,0 +1,3 @@
+User-agent: *
+Disallow:
+Sitemap: https://ibrunotome.github.io/sitemap.xml
