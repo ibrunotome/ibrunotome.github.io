@@ -8,8 +8,6 @@ buildDrafts: false
 buildFuture: false
 buildExpired: false
 
-googleAnalytics: UA-40327355-1
-
 languageCode: pt
 defaultContentLanguage: pt
 languages:
@@ -121,10 +119,10 @@ params:
 
   analytics:
     google:
-      SiteVerificationTag: "XYZabc"
+      SiteVerificationTag: "UA-40327355-1"
 
   cover:
-    hidden: false # hide everywhere but not in structured data
+    hidden: true # hide everywhere but not in structured data
     hiddenInList: false # hide on list pages and home
     hiddenInSingle: false # hide on single page
 
