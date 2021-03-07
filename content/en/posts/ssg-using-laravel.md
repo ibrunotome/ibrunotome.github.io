@@ -1,5 +1,5 @@
 ---
-title: "SSG usando Laravel"
+title: "SSG using Laravel"
 date: 2021-03-07T09:33:16-03:00
 draft: true
 tags: ["laravel"]
@@ -14,21 +14,21 @@ draft: false
 translationKey: "ssg-using-laravel"
 ---
 
-## O que é SSG (Static Site Generation)
+## What is SSG (Static Site Generation)
 
-É o processo de gerar páginas estáticas (.html) de sua aplicação.
+It is the process of generating static pages (.html) of your application.
 
-Muitos frameworks oferecem essa ferramenta (Hugo, Next.Js, Nuxt.Js e muitos outros). Aqui vou mostrar que também podemos fazer SSG de sua aplicação Laravel que já está online, usando o próprio Laravel.
+Many frameworks offer this tool (Hugo, Next.Js, Nuxt.Js and many others). Here I will show that we can also make SSG of your Laravel application that is already online, using Laravel itself.
 
-## Qual a utilidade disso?
+## What is the use of this?
 
-Provavelmente sua aplicação está nesse momento processando o mesmo conteúdo para cada usuário que acessa sua homepage ou várias outras páginas do seu site, fazendo todo o processo de consumir dados no banco de dados ou cache, processá-los, gerar as views e renderizar um template para devolver ao usuário, de novo e de novo...
+Probably your application is currently processing the same content for each user who accesses your homepage or several other pages on your site, doing the entire process of consuming data in the database or cache, processing them, generating the views and rendering a template to return to the user, again and again...
 
-Após gerarmos páginas estáticas, esse processo acima não precisará mais acontecer a cada requisição em sua aplicação, pois após termos gerado um .html para cada página, nosso servidor nginx (ou qualquer outro) irá apenas retornar esse .html protinho para o usuário, sem a necessidade de nem enconstar na aplicação.
+After generating static pages, the above process will no longer need to happen to each request in your application, because after we have generated an .html for each page, our nginx server (or any other) will just return this .html to the user, without the need to hit the application.
 
-## Como fazer SSG usando Laravel?
+## How to do SSG using Laravel?
 
-Mostrarei abaixo duas maneiras, as duas podem ser usadas ao mesmo tempo (eu uso, inclusive), pois cada uma atende uma necessidade diferente. Para ambas as maneiras, utilizo uma configuração de disco em `config/filesystems.php` para definir para onde vão os .html gerados:
+I will show you two methods below, both can be used at the same time, as each meets a different need. For both methods, I use a disk configuration in `config/filesystems.php` to define where the generated .html files go:
 
 ```php
 'html' => [
@@ -39,9 +39,9 @@ Mostrarei abaixo duas maneiras, as duas podem ser usadas ao mesmo tempo (eu uso,
 ],
 ```
 
-### 1. Geração automática em background job
+### 1. Automatic generation in background job
 
-Dessa maneira, um job irá realizar em background a geração das páginas estáticas que você predefinir.
+In this way, a job will perform in the background the generation of static pages that you preset.
 
 ```php
 <?php
@@ -126,11 +126,11 @@ class GenerateStaticSiteJob implements ShouldQueue
 }
 ```
 
-E pronto, você pode criar um comando para disparar esse job a cada novo deploy da sua aplicação e também criar `events/observers/listeners` para gerar novamente os .html a cada alteração de conteúdo.
+Thats it! You can create a command to trigger this job with each new deployment of your application and also create `events/observers/listeners` to generate the .html again with each content change.
 
-### 2. Geração após o término de uma requisição
+### 2. Generation after the end of a requisition
 
-Dessa maneira, ao término de uma requisição que contenha nosso middleware, o conteúdo devolvido ao usuário será escrito em um .html em nosso disco.
+Thus, at the end of a request that contains our middleware, the content returned to the user will be written in an .html on our disk.
 
 ```php
 <?php
@@ -182,28 +182,27 @@ class CacheHtmlResponse
 }
 ```
 
-Registre esse middleware em `$routeMiddleware` no arquivo App\Http\Kernel`
+Register this middleware in `$routeMiddleware` in the file App\Http\Kernel`
 
 ```php
-
-protected $routeMiddleware = [
-    # ...
-    'cache.html' => CacheHtmlResponse::class,
-    #...
+protected $ routeMiddleware = [
+     # ...
+     'cache.html' => CacheHtmlResponse :: class,
+     # ...
 ];
 ```
 
-E adicione o middleware nas rotas que deseja páginas estáticas.
+And add middleware on the routes you want to static pages.
 
-Por que também utilizar essa maneira, e não só definir todas as urls no background job mostrado anteriormente?
+Why also use this way instead of just define all the urls in the background job shown above?
 
-Imagine um blog com centenas ou milhares de posts, o job levaria vários minutos para terminar, e provavelmente, nem todos os blog posts recebem muitas requisições.
+Imagine a blog with hundreds or thousands of posts, the job would take several minutes to finish, and probably not all blog posts receive many requests.
 
-Esse é o cenário perfeito para usar esse middleware. Após o primeiro leitor receber a renderização do blog post, o .html daquela postagem será gerado e o próximo leitor não precisará esperar pelo processo de renderização novamente.
+This is the perfect scenario for using this middleware. After the first reader receives the rendering of the blog post, the .html for that post will be generated and the next reader will not have to wait for the rendering process again.
 
-## Configurando Nginx para responder os .html gerados
+## Configuring Nginx to answer the generated .html
 
-Com a configuração abaixo, o nginx irá sempre procurar um .html para as urls que tem os prefixos definidos. Caso não encontre, irá seguir o fluxo normal e mandar a requisição para sua aplicação.
+With the configuration below, nginx will always look for a .html for urls that have prefixes defined. If not, it will follow the normal flow and send the request to your application.
 
 ```nginx
 location ~ ^/(servicos|blog|avaliacoes-de-clientes|termos-de-servico|sobre-nos|politica-de-privacidade|politica-de-cancelamento).*$ {
@@ -233,6 +232,6 @@ location ~ \.php$ {
 }
 ```
 
-## Conclusão
+## Conclusion
 
-Após os passos acima a aplicação finalmente fica responsável pelo que mais importa, como o checkout e dashboard do usuário. O nginx pode ficar com o processo mais leve e repetitivo de devolver páginas estáticas para o usuário. Além de o tempo de cada requisição diminuir bastante para essas páginas geradas estaticamente.
+After the steps above, the application is finally responsible for what matters, such as the user's checkout and dashboard. Nginx can have the lightest and most repetitive process of returning static pages to the user. In addition, the time of each request decreases considerably for these statically generated pages.
