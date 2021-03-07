@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Posts on Bruno Tomé</title>
-    <link>https://ibrunotome.github.io/en/posts/</link>
-    <description>Recent content in Posts on Bruno Tomé</description>
+    <title>tutorials on Bruno Tomé</title>
+    <link>https://ibrunotome.github.io/en/categories/tutorials/</link>
+    <description>Recent content in tutorials on Bruno Tomé</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>pt</language>
-    <lastBuildDate>Sun, 07 Mar 2021 09:33:16 -0300</lastBuildDate><atom:link href="https://ibrunotome.github.io/en/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 07 Mar 2021 09:33:16 -0300</lastBuildDate><atom:link href="https://ibrunotome.github.io/en/categories/tutorials/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>SSG using Laravel</title>
       <link>https://ibrunotome.github.io/en/posts/ssg-using-laravel/</link>
@@ -16,15 +16,6 @@
       <description>What is SSG (Static Site Generation) It is the process of generating static pages (.html) of your application.
 Many frameworks offer this tool (Hugo, Next.Js, Nuxt.Js and many others). Here I will show that we can also make SSG of your Laravel application that is already online, using Laravel itself.
 What is the use of this? Probably your application is currently processing the same content for each user who accesses your homepage or several other pages on your site, doing the entire process of consuming data in the database or cache, processing them, generating the views and rendering a template to return to the user, again and again&amp;hellip;</description>
-    </item>
-    
-    <item>
-      <title>Multiple Applications in One Kubernetes Cluster</title>
-      <link>https://ibrunotome.github.io/en/multiple-applications-in-one-kubernetes-cluster/</link>
-      <pubDate>Sun, 29 Mar 2020 13:29:17 -0300</pubDate>
-      
-      <guid>https://ibrunotome.github.io/en/multiple-applications-in-one-kubernetes-cluster/</guid>
-      <description>Give me some time to translate this by hand, it helps me improve my English :)</description>
     </item>
     
   </channel>

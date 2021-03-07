@@ -5,6 +5,16 @@
     <link>https://ibrunotome.github.io/en/categories/</link>
     <description>Recent content in Categories on Bruno Tomé</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>pt</language><atom:link href="https://ibrunotome.github.io/en/categories/index.xml" rel="self" type="application/rss+xml" />
+    <language>pt</language>
+    <lastBuildDate>Sun, 07 Mar 2021 09:33:16 -0300</lastBuildDate><atom:link href="https://ibrunotome.github.io/en/categories/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>tutorials</title>
+      <link>https://ibrunotome.github.io/en/categories/tutorials/</link>
+      <pubDate>Sun, 07 Mar 2021 09:33:16 -0300</pubDate>
+      
+      <guid>https://ibrunotome.github.io/en/categories/tutorials/</guid>
+      <description></description>
+    </item>
+    
   </channel>
 </rss>
