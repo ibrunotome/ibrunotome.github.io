@@ -1,5 +1,6 @@
 ---
 title: "SSG usando Laravel"
+url: ssg-usando-laravel
 date: 2021-03-07T09:33:16-03:00
 draft: true
 tags: ["laravel"]
