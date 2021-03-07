@@ -6,7 +6,18 @@
     <description>Recent content in Posts on Bruno Tomé</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>pt</language>
-    <lastBuildDate>Sun, 29 Mar 2020 13:29:17 -0300</lastBuildDate><atom:link href="https://ibrunotome.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 07 Mar 2021 09:33:16 -0300</lastBuildDate><atom:link href="https://ibrunotome.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>SSG usando Laravel</title>
+      <link>https://ibrunotome.github.io/posts/ssg-usando-laravel/</link>
+      <pubDate>Sun, 07 Mar 2021 09:33:16 -0300</pubDate>
+      
+      <guid>https://ibrunotome.github.io/posts/ssg-usando-laravel/</guid>
+      <description>O que é SSG (Static Site Generation) É o processo de gerar páginas estáticas (.html) de sua aplicação.
+Muitos frameworks oferecem essa ferramenta (Hugo, Next.Js, Nuxt.Js e muitos outros). Aqui vou mostrar que também podemos fazer SSG de sua aplicação Laravel que já está online, usando o próprio Laravel.
+Qual a utilidade disso? Provavelmente sua aplicação está nesse momento processando o mesmo conteúdo para cada usuário que acessa sua homepage ou várias outras páginas do seu site, fazendo todo o processo de consumir dados no banco de dados ou cache, processá-los, gerar as views e renderizar um template para devolver ao usuário, de novo e de novo&amp;hellip;</description>
+    </item>
+    
     <item>
       <title>Múltiplas aplicações em um cluster Kubernetes</title>
       <link>https://ibrunotome.github.io/multiplas-aplicacoes-em-um-cluster-kubernetes/</link>
