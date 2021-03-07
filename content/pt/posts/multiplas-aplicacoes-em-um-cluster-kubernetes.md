@@ -3,8 +3,8 @@ title: "Múltiplas aplicações em um cluster Kubernetes"
 url: multiplas-aplicacoes-em-um-cluster-kubernetes
 date: "2020-03-29T13:29:17-03:00"
 lastmod: "2021-02-28T13:29:00-03:00"
-tags: ["gcp", "laravel"]
-categories: ["devops", "kubernetes"]
+tags: ["gcp", "laravel", "devops", "kubernetes"]
+categories: ["tutorials"]
 imgs:
   [
     "../multiple-applications-in-one-kubernetes-cluster.png",
