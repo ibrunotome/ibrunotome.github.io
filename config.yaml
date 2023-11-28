@@ -113,10 +113,6 @@ params:
       url: "https://github.com/ibrunotome"
     - name: stackoverflow
       url: "https://stackoverflow.com/users/3238672/bruno-tomé?tab=profile"
-    - name: linkedin
-      url: "https://github.com/ibrunotome"
-    - name: twitter
-      url: "https://twitter.com/ibrunotome"
 
   analytics:
     google:
