@@ -1,0 +1,12 @@
+{{- $document := printf "# %s\n\n" .Title -}}
+{{- with .OutputFormats.Get "html" -}}
+  {{- $document = printf "%sSource: %s\n" $document .Permalink -}}
+{{- end -}}
+{{- $document = printf "%sLanguage: %s\n" $document .Language.Label -}}
+{{- if not .PublishDate.IsZero -}}
+  {{- $document = printf "%sPublished: %s\n" $document (.PublishDate.Format "2006-01-02") -}}
+{{- end -}}
+{{- if and (not .Lastmod.IsZero) (ne .Lastmod .PublishDate) -}}
+  {{- $document = printf "%sUpdated: %s\n" $document (.Lastmod.Format "2006-01-02") -}}
+{{- end -}}
+{{- return (printf "%s\n%s\n" $document (.RawContent | strings.TrimSpace)) -}}

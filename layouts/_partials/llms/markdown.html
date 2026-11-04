@@ -1,0 +1,10 @@
+{{- $page := . -}}
+{{- $markdown := false -}}
+{{- with .OutputFormats.Get "html" -}}
+  {{- $path := (urls.Parse .Permalink).Path -}}
+  {{- $basePath := (urls.Parse $page.Site.BaseURL).Path -}}
+  {{- $path = strings.Trim (strings.TrimPrefix $basePath $path) "/" -}}
+  {{- $target := printf "%s.md" $path -}}
+  {{- $markdown = resources.FromString $target (partial "llms/document.html" $page) -}}
+{{- end -}}
+{{- return $markdown -}}

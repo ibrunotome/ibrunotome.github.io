@@ -1,17 +1,16 @@
 ---
 title: "Múltiplas aplicações em um cluster Kubernetes"
 url: multiplas-aplicacoes-em-um-cluster-kubernetes
+# Step out of /pt/ to preserve the original root URL.
+aliases:
+  - ../multiplas-aplicacoes-em-um-cluster-kubernetes/
 date: "2020-03-29T13:29:17-03:00"
 lastmod: "2021-02-28T13:29:00-03:00"
 tags: ["gcp", "laravel", "devops", "kubernetes"]
 categories: ["tutorials"]
-imgs:
-  [
-    "../multiple-applications-in-one-kubernetes-cluster.png",
-    "../kontena-lens.png",
-  ]
-ogimage: "https://ibrunotome.github.io/multiple-applications-in-one-kubernetes-cluster.png"
-comments: true
+images:
+  - /multiple-applications-in-one-kubernetes-cluster.png
+  - /kontena-lens.png
 draft: false
 translationKey: "multiple-applications-in-one-kubernetes-cluster"
 ---
@@ -37,7 +36,7 @@ Mesmo com todo o processo de deploy automatizado, sem gerar dores de cabeça, `o
 - Uma terceira aplicação, com situação oposta, com métricas recomendando o upgrade da VM para pelo menos 6GB
   de RAM. Essa aplicação executa jobs em queues, pode ficar alguns minutos sem receber nenhum novo job, porém, quando recebe um novo job ela deve executar todos rapidamente, além de poder receber novos jobs enquanto executa o antigo e já ter que iniciar a execução desse novo job sem espera. No framework utilizado nessa aplicação (Laravel), cada worker utiliza pelo menos 32MB de RAM, se configurarmos um valor máximo de 120 workers, já são necessários pelo menos 3840MB de memória RAM, excedendo os 3,75GB de RAM dessa VM. Além do fato de muitas vezes os 120 workers não serem suficientes para uma entrega rápida, ocasionando em um wait time longo para executar os jobs nas queues:
 
-![Longo tempo de espera para execução dos jobs no horizon](../horizon-queue-long-wait-time.png)
+![Longo tempo de espera para execução dos jobs no horizon](/horizon-queue-long-wait-time.png)
 
   Essa aplicação definivamente precisava de mais recursos enquanto as outras duas citadas anteriormente não utilizavam todos os recursos disponíveis.
 
@@ -45,7 +44,7 @@ Mesmo com todo o processo de deploy automatizado, sem gerar dores de cabeça, `o
 
 - Uma quinta aplicação, também em container único, rodava bem no cloud.run e, diferentemente da anterior não precisa de queues. Porém, como possui muitos acessos no cloud.run e o tempo de execução de CPU de cada request dessa aplicação é alto, os custos no cloud.run começaram a incomodar (abaixo os preços do cloud.run com e sem free tier):
 
-![Cloud Run Pricing](../cloud-run-pricing.png)
+![Cloud Run Pricing](/cloud-run-pricing.png)
 
 Uma solução viável para otimização da utilização de recursos seria executar as aplicações em um cluster, possuindo assim o controle de quanto hardware dedicar a cada aplicação e abrindo possibilidade para escalabilidade da terceira aplicação mencionada anteriormente. Para orquestrar os contâiners no cluster, dentre as opções disponíveis eu teria que escolher bem entre duas: Swarm ou Kubernetes, pois possuía um pouco de conhecimento prévio em ambas as ferramentas.
 
@@ -121,7 +120,7 @@ Caso você ainda não tenha containerizado sua aplicação, prepare-a de modo qu
 Aqui vem o primeiro susto para quem era acostumado a subir o ambiente de produção inteiro com um único arquivo
 docker-compose.yaml 🙃
 
-![Manifestos k8s](../k8s-first-application-manifests.png)
+![Manifestos k8s](/k8s-first-application-manifests.png)
 
 Mostrarei o propósito de cada arquivo. Veja detalhes e conceitos do Kubernetes em sua [documentação](https://kubernetes.io/docs/concepts/).
 
@@ -1246,7 +1245,7 @@ Não vou entrar em detalhes sobre o processo de CI em `cloudbuild.ci.yaml` pois 
 
 Usando a api do kubernetes é possível obter vários dados para monitorar o cluster, porém para uma visão gráfica geral de todos os namespaces utilizo o [Kontena Lens](https://k8slens.dev), uma ferramenta grátis e opensource:
 
-![Kontena Lens](../kontena-lens.png)
+![Kontena Lens](/kontena-lens.png)
 
 Após instalá-lo e conectá-lo ao cluster, clique com o botão direito no ícone do cluster e habilite as métricas prometheus.
 
@@ -1257,7 +1256,7 @@ Analise ao longo do tempo se as `requests` e os `limits` definidos nos deploymen
 O processo de deploy das outras aplicações é o mesmo, o namespace é diferente, mas os conceitos são os mesmos. Como um rápido exemplo, a quinta aplicação mencionada no início (executada no cloud.run), desta vez com um container apache:
 
 <p align="center">
-  <img src="../k8s-second-application-manifests.png" width="400px">
+  <img src="/k8s-second-application-manifests.png" width="400px">
 </p>
 
 Exemplo do app-deployment:
@@ -1360,10 +1359,6 @@ Outras dicas para reduzir recursos consumidos pelo namespace kube-system podem s
 
 Como dito anteriormente, entre 1 e 5 forwarding rules o custo é o mesmo, aproximadamente `18 USD`. Porém, após o deploy de 5 aplicações temos 10 fowarding rules, totalizando mais de `50 USD`...
 
-<p align="center">
-<img src="https://media.giphy.com/media/Sqfdtirm5xPIu01Bez/giphy-downsized.gif" width="380px">
-</p>
-
 Possíveis soluções:
 
 - Com custo aproximado de `18 USD`: Utilizar [apenas um load balancer](https://stackoverflow.com/questions/58739513/google-kubernetes-engine-how-to-define-one-ingress-for-multiple-namespaces/60335810#60335810) no namespace default com nginx realizando o proxy para os serviços em diferentes namespaces, gerando assim apenas duas forwarding rules. Exemplo de um nginx-configmap para atingir esse objetivo:
@@ -1445,6 +1440,6 @@ Conteúdos que me ajudaram no processo:
 
 Último recado:
 
-![Keep it simple stupid!](../keep-it-simple.jpeg)
+![Keep it simple stupid!](/keep-it-simple.jpeg)
 
 Só se aventure com Kubernetes `para aprendizado` ou `se fizer sentido` para seu projeto `e resolver algum problema existente` como foi mostrado nesse artigo. Não complique o que está funcionando perfeitamente.

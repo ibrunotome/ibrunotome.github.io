@@ -1,0 +1,13 @@
+{{- if .IsTranslated -}}
+  {{- range .AllTranslations -}}
+    <link rel="alternate" hreflang="{{ .Language.Lang }}" href="{{ .Permalink }}" />
+  {{- end -}}
+{{- end -}}
+{{- with .Site.Home.OutputFormats.Get "llms" -}}
+  <link rel="describedby" type="text/plain" href="{{ .Permalink }}" />
+{{- end -}}
+{{- if .IsPage -}}
+  {{- with partial "llms/markdown.html" . -}}
+    <link rel="alternate" type="text/markdown" href="{{ .Permalink }}" />
+  {{- end -}}
+{{- end -}}

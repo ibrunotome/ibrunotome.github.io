@@ -1,144 +1,134 @@
-baseURL: "https://ibrunotome.github.io"
+baseURL: "https://ibrunotome.github.io/"
 title: "Bruno Tomé"
-paginate: 5
-theme: PaperMod
+
+module:
+  imports:
+    - path: github.com/imfing/hextra
+
+outputs:
+  home: [HTML, RSS, LLMS]
+  page: [HTML]
+
+outputFormats:
+  llms:
+    baseName: llms
+    mediaType: text/plain
+    isPlainText: true
+    notAlternative: true
 
 enableRobotsTXT: true
 buildDrafts: false
 buildFuture: false
 buildExpired: false
-disqusShortname: ibrunotome
+summaryLength: 30
 
-languageCode: pt
-defaultContentLanguage: pt
+pagination:
+  pagerSize: 5
+
+# Keep Portuguese at /pt and English at /, including existing front matter URLs.
+defaultContentLanguage: en
+defaultContentLanguageInSubdir: false
 languages:
-  pt:
-    contentDir: content/pt
-    languageName: Português
-    weight: 10
-    homeInfoParams:
-      Title: "Olá \U0001F44B"
-      Content: Bem vindo ao meu blog
-    menu:
-      main:
-        - identifier: categorias
-          name: categorias
-          url: /categories/
-          weight: 10
-        - identifier: tags
-          name: tags
-          url: /tags/
-          weight: 20
-        - identifier: sobre
-          name: sobre
-          url: /sobre/
-          weight: 30
   en:
     contentDir: content/en
-    languageName: English
-    weight: 20
-    homeInfoParams:
-      Title: "Hi there \U0001F44B"
-      Content: Welcome to my blog
+    label: English
+    locale: en-US
+    weight: 10
+    params:
+      description: "Welcome to my blog"
+      llms:
+        description: "Bruno Tomé's personal blog and professional profile, covering full-stack software development, cloud infrastructure, and DevOps."
     menu:
       main:
-        - identifier: categories
-          name: categories
-          url: https://ibrunotome.github.io/categories/
-          weight: 10
-        - identifier: tags
-          name: tags
-          url: https://ibrunotome.github.io/tags/
-          weight: 20
-        - identifier: about
-          name: about
-          url: /about/
+        - name: About
+          pageRef: /about
           weight: 30
-    
+        - name: Search
+          weight: 40
+          params:
+            type: search
+        - name: Language
+          weight: 50
+          params:
+            type: language-switch
+        - name: GitHub
+          url: "https://github.com/ibrunotome"
+          weight: 60
+          params:
+            icon: simple:github
+        - name: Stack Overflow
+          url: "https://stackoverflow.com/users/3238672/ibrunotome?tab=profile"
+          weight: 70
+          params:
+            icon: simple:stackoverflow
+  pt:
+    contentDir: content/pt
+    label: Português
+    locale: pt-BR
+    weight: 20
+    params:
+      description: "Bem vindo ao meu blog"
+      llms:
+        description: "Blog pessoal e perfil profissional de Bruno Tomé, com conteúdo sobre desenvolvimento de software full-stack, infraestrutura na nuvem e DevOps."
+    menu:
+      main:
+        - name: Sobre
+          pageRef: /sobre
+          weight: 30
+        - name: Buscar
+          weight: 40
+          params:
+            type: search
+        - name: Idioma
+          weight: 50
+          params:
+            type: language-switch
+        - name: GitHub
+          url: "https://github.com/ibrunotome"
+          weight: 60
+          params:
+            icon: simple:github
+        - name: Stack Overflow
+          url: "https://stackoverflow.com/users/3238672/ibrunotome?tab=profile"
+          weight: 70
+          params:
+            icon: simple:stackoverflow
+
 minify:
   disableXML: true
   minifyOutput: true
 
 params:
-  env: production # to enable google analytics, opengraph, twitter-cards and schema.
-  title: "Bruno Tomé"
   description: "Bem vindo ao meu blog"
-  author: "Bruno Tomé"
-  # images: ["<link or path of image for opengraph, twitter-cards>"]
-  # author: ["Me", "You"] # multiple authors
+  author:
+    name: "Bruno Tomé"
+  navbar:
+    displayTitle: true
+    displayLogo: false
+  theme:
+    default: system
+    displayToggle: true
+  footer:
+    displayCopyright: false
+    displayPoweredBy: false
+  search:
+    enable: true
+  blog:
+    list:
+      sortBy: date
+      sortOrder: desc
+      pagerSize: 5
+      displayTags: true
+  toc:
+    displayTags: true
 
-  defaultTheme: dark # dark, light
-  disableThemeToggle: false
-
-  ShowReadingTime: false
-  ShowShareButtons: false
-  disableSpecial1stPost: false
-  displayFullLangName: true
-  comments: true
-  hidemeta: false
-  showtoc: true
-  tocopen: false
-
-  assets:
-    # disableHLJS: true # to disable highlight.js
-    # disableFingerprinting: true
-    favicon: "https://ibrunotome.github.io/favicon.ico"
-    favicon16x16: "https://ibrunotome.github.io/favicon-16x16.ico"
-    favicon32x32: "https://ibrunotome.github.io/favicon-32x32.ico"
-    apple_touch_icon: "https://ibrunotome.github.io/apple-touch-icon.png"
-    safari_pinned_tab: "https://ibrunotome.github.io/safari-pinned-tab.svg"
-
-  label:
-    text: "Bruno Tomé"
-    # icon: /apple-touch-icon.png
-    # iconHeight: 35
-
-  # profile-mode
-  profileMode:
-    enabled: false # needs to be explicitly set
-    title: "Bruno Tomé"
-    subtitle: "Sócio desenvolvedor de alguns e-commerces"
-    imageUrl: "https://avatars.githubusercontent.com/u/4256471?s=460&u=ab7ff920fbf6814189985254c91bb82cd2549792&v=4"
-    imageWidth: 120
-    imageHeight: 120
-    imageTitle: my image
-    buttons:
-      - name: Posts
-        url: posts
-      - name: Tags
-        url: tags
-
-  socialIcons:
-    - name: github
-      url: "https://github.com/ibrunotome"
-    - name: stackoverflow
-      url: "https://stackoverflow.com/users/3238672/bruno-tomé?tab=profile"
-
-  analytics:
-    google:
-      SiteVerificationTag: "UA-40327355-1"
-
-  cover:
-    hidden: true # hide everywhere but not in structured data
-    hiddenInList: false # hide on list pages and home
-    hiddenInSingle: false # hide on single page
-
-  # for search
-  # https://fusejs.io/api/options.html
-  # fuseOpts:
-  #   isCaseSensitive: false
-  #   shouldSort: true
-  #   location: 0
-  #   distance: 1000
-  #   threshold: 0.4
-  #   minMatchCharLength: 0
-  #   keys: ["title", "permalink", "summary", "content"]
-
-pygmentsUseClasses: true
 markup:
+  goldmark:
+    renderer:
+      # Existing articles include images written as HTML.
+      unsafe: true
   highlight:
-    # anchorLineNos: true
+    noClasses: false
     codeFences: true
     guessSyntax: true
     lineNos: true
-    style: monokai

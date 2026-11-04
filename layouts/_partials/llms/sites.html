@@ -1,0 +1,5 @@
+{{- $sites := slice . -}}
+{{- if .IsDefault -}}
+  {{- $sites = hugo.Sites -}}
+{{- end -}}
+{{- return $sites -}}

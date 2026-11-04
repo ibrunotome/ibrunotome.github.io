@@ -2,15 +2,10 @@
 title: "SSG using Laravel"
 url: ssg-using-laravel
 date: 2021-03-07T09:33:16-03:00
-draft: true
 tags: ["laravel"]
 categories: ["tutorials"]
-imgs:
-  [
-    "../ssg-static-site-generation.png",
-  ]
-ogimage: "https://ibrunotome.github.io/ssg-static-site-generation.png"
-comments: true
+images:
+  - /ssg-static-site-generation.png
 draft: false
 translationKey: "ssg-using-laravel"
 ---

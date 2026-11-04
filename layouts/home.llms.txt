@@ -1,0 +1,17 @@
+{{- printf "# %s\n\n" .Site.Title -}}
+{{- printf "> %s\n\n" .Site.Params.llms.description -}}
+{{- if eq .Language.Lang "pt" -}}
+  {{- print "Os links abaixo apontam para versões em Markdown das páginas publicadas. Cada arquivo inclui a URL canônica da página original.\n" -}}
+{{- else -}}
+  {{- print "The links below point to Markdown versions of published pages. Each file includes the canonical URL of the original page.\n" -}}
+{{- end -}}
+{{- range partial "llms/sites.html" .Site -}}
+  {{- printf "\n## %s\n\n" .Language.Label -}}
+  {{- range partial "llms/pages.html" . -}}
+    {{- $page := . -}}
+    {{- $description := partial "utils/page-description.html" . | plainify | htmlUnescape | replaceRE `\s+` " " | strings.TrimSpace | truncate 180 -}}
+    {{- with partial "llms/markdown.html" . -}}
+      {{- printf "- [%s](%s): %s\n" $page.Title .Permalink $description -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}

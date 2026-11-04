@@ -1,0 +1,11 @@
+{{- $profiles := (where .RegularPages "Section" "").ByTitle -}}
+{{- $articles := (where .RegularPages "Section" "ne" "").ByDate.Reverse -}}
+{{- $pages := slice -}}
+{{- $now := now -}}
+{{- range union $profiles $articles -}}
+  {{- $published := and (not .Draft) (not (.PublishDate.After $now)) (or .ExpiryDate.IsZero (.ExpiryDate.After $now)) -}}
+  {{- if and $published (ne .Params.llms false) (ne .Params.noindex true) -}}
+    {{- $pages = $pages | append . -}}
+  {{- end -}}
+{{- end -}}
+{{- return $pages -}}

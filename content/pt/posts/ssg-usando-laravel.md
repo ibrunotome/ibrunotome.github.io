@@ -1,16 +1,14 @@
 ---
 title: "SSG usando Laravel"
 url: ssg-usando-laravel
+# Step out of /pt/ to preserve the original root URL.
+aliases:
+  - ../ssg-usando-laravel/
 date: 2021-03-07T09:33:16-03:00
-draft: true
 tags: ["laravel"]
 categories: ["tutorials"]
-imgs:
-  [
-    "../ssg-static-site-generation.png",
-  ]
-ogimage: "https://ibrunotome.github.io/ssg-static-site-generation.png"
-comments: true
+images:
+  - /ssg-static-site-generation.png
 draft: false
 translationKey: "ssg-using-laravel"
 ---
