@@ -2,8 +2,8 @@
 title: "Como identifiquei um golpe de recrutamento antes de executar o instalador"
 url: como-identifiquei-um-golpe-de-recrutamento-antes-de-executar-o-instalador
 date: 2026-11-05T11:29:09-03:00
-tags: ["segurança", "macos", "golpes", "carreira"]
-categories: ["segurança"]
+tags: ["security", "macos", "career", "codex", "ai"]
+categories: ["security"]
 draft: false
 translationKey: "how-i-spotted-a-recruitment-scam-before-running-its-installer"
 ---

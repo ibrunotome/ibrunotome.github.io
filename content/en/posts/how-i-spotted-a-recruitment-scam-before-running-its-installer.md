@@ -2,7 +2,7 @@
 title: "How I Spotted a Recruitment Scam Before Running Its Installer"
 url: how-i-spotted-a-recruitment-scam-before-running-its-installer
 date: 2026-11-05T11:29:09-03:00
-tags: ["security", "macos", "scams", "career"]
+tags: ["security", "macos", "career", "codex", "ai"]
 categories: ["security"]
 draft: false
 translationKey: "how-i-spotted-a-recruitment-scam-before-running-its-installer"
