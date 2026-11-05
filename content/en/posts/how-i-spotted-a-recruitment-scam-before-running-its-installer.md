@@ -14,7 +14,7 @@ The recruitment process was associated with a company called Saifuro. The interv
 
 I did not run the installer. I looked at what it wanted to do first.
 
-That decision led to an investigation of a shell script that downloaded and immediately launched a Mac executable. AI-assisted static analysis found strong matches to a documented malware family called CloudSyncD.
+That decision led me to inspect a shell script that, if run, would download and immediately launch a Mac executable. Neither the installer nor the downloaded executables were run. AI-assisted static analysis found strong matches to a documented malware family called CloudSyncD.
 
 Here is what happened, what made me suspicious, and what the evidence actually established.
 
@@ -72,7 +72,7 @@ The reply justified the app as a way to prevent AI-generated answers and said th
   <figcaption>Conversation on the day of the interview, after I pointed out problems with the installer and asked for another platform.</figcaption>
 </figure>
 
-The timing of the download mattered to me. When a meeting is about to start, there is pressure to get the application working and avoid being late. That is a bad moment to make a decision about running unfamiliar software.
+The timing of the download link mattered to me. When a meeting is about to start, there is pressure to get the application working and avoid being late. That is a bad moment to make a decision about running unfamiliar software.
 
 ## Behind the professional appearance
 
@@ -124,25 +124,25 @@ That flag alone would not establish malware. It was one part of the evidence.
 
 ### The signature-verification function was never called
 
-The script defined a GPG signature-verification function, but the active installation path never called it. There was no expected checksum or verified publisher identity checked before execution.
+The script defined a GPG signature-verification function, but there was no call to it in the active installation code. That code also contained no check against an expected checksum or verified publisher identity before launching the executable.
 
 A verification function sitting elsewhere in a script does not verify the file being installed.
 
 ### The progress bar was driven by a timer
 
-The displayed installation progress advanced through a loop with short sleeps. It did not measure download or extraction progress.
+The progress-bar code used a loop with short sleeps to advance the displayed installation progress, rather than tracking the download or extraction.
 
-A decorative progress bar is possible in legitimate software too. Here it added to the concerns about what the installer was presenting to the user.
+A decorative progress bar is possible in legitimate software too. Here, its implementation raised further questions about what the installer would present to the user.
 
 ### It launched a discovered executable immediately
 
-After downloading and extracting the archive, the script searched for an executable and passed it to:
+If run, the script would download and extract the archive, find an executable and launch it with:
 
 ```bash
 exec "${__bin_bin_sy}"
 ```
 
-There was no pause to inspect the downloaded program or confirm its publisher. Running the installer would hand execution directly to that program.
+The installation flow offered no pause to inspect the downloaded program or confirm its publisher. Running the installer would hand execution directly to that program.
 
 The archive retrieved during the investigation contained a single file named `installer`: a universal macOS executable supporting both Intel and Apple Silicon.
 
