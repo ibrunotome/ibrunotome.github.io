@@ -1,5 +1,5 @@
 ---
-title: "Hi there 👋"
+title: "Hi there"
 toc: false
 aliases:
   - /posts/
