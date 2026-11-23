@@ -2,18 +2,18 @@
 title: "About"
 url: "about"
 date: "2020-03-29T13:29:17-03:00"
-lastmod: "2026-11-04"
+lastmod: "2026-11-23"
 description: "Software engineer and full-stack developer based in Minas Gerais, Brazil, building e-commerce platforms, SaaS products, and open-source prediction market infrastructure."
 toc: true
 draft: false
 translationKey: "about"
 ---
 
-Servant of God. Husband. Software Engineer.
+Christian. Husband. Software Engineer.
 
 12 years building and deploying full-stack applications, from e-commerce platforms to B2B SaaS.
 
-After migrating the Seguidores e-commerce platform to a tailored Laravel platform, I became a partner. That grew into a business partnership lasting almost 9 years. My partner handled sales, while I took responsibility for development and contributed to business decisions. Together, we built several products, including Viral, a B2B SaaS that helped e-commerce owners find and manage influencers, automate coupons, and track campaign sales.
+After migrating the Seguidores e-commerce platform from Shopify to a tailored Laravel platform, I became a partner. That grew into a business partnership lasting almost 9 years. My partner handled sales, while I took responsibility for development and contributed to business decisions. Together, we built several products, including Viral, a B2B SaaS that helped e-commerce owners find and manage influencers, automate coupons, and track campaign sales.
 
 Since June 2025, I've been the founding engineer at Kuest, building open-source white-label infrastructure for prediction markets. I helped shape its architecture and onboarding so non-technical users could launch their own market in under 15 minutes. I also supported the founder in investor meetings, translating between English and Portuguese and explaining technical details.
 
