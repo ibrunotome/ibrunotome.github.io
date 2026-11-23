@@ -13,13 +13,13 @@ Christian. Husband. Software Engineer.
 
 12 years building and deploying full-stack applications, from e-commerce platforms to B2B SaaS.
 
-After migrating the Seguidores e-commerce platform from Shopify to a tailored Laravel platform, I became a partner. That grew into a business partnership lasting almost 9 years. My partner handled sales, while I took responsibility for development and contributed to business decisions. Together, we built several products, including Viral, a B2B SaaS that helped e-commerce owners find and manage influencers, automate coupons, and track campaign sales.
+I migrated the Seguidores e-commerce platform from Shopify to a tailored Laravel solution and automated much of the sales flow. This led me to becoming a partner. We worked together for almost 9 years: my partner handled sales, while I handled development and contributed to business decisions. During that time, I introduced upselling, cross-selling, and automated marketing campaigns that helped nearly double revenue. We also built several products together. One of them was Viral, a B2B SaaS that helped e-commerce owners find and manage influencers, automate coupons, and track campaign sales.
 
 Since June 2025, I've been the founding engineer at Kuest, building open-source white-label infrastructure for prediction markets. I helped shape its architecture and onboarding so non-technical users could launch their own market in under 15 minutes. I also supported the founder in investor meetings, translating between English and Portuguese and explaining technical details.
 
 My technical background includes 9 years with Laravel and its ecosystem, 7 years with Vue.js, and 5 years with React, Next.js, and TypeScript, alongside 7 years running Docker and 3 running Kubernetes in production.
 
-Based in Brazil (UTC−3). Fluent in English (C1) and a native Portuguese speaker.
+Based in Brazil (UTC−3). Fluent in English (C1).
 
 [View my contributions to Kuest](https://github.com/search?q=repo%3Akuest%2Fprediction-market+author%3Aibrunotome&type=commits&s=author-date&o=desc)
 

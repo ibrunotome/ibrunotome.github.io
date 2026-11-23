@@ -13,13 +13,13 @@ Cristão. Marido. Engenheiro de Software.
 
 12 anos construindo e implantando software full-stack, desde plataformas de e-commerce até SaaS B2B.
 
-Depois de migrar o e-commerce Seguidores do Shopify para uma plataforma Laravel personalizada, me tornei sócio. Isso se transformou em uma parceria comercial que durou quase 9 anos. Meu parceiro cuidou das vendas, enquanto eu assumia a responsabilidade pelo desenvolvimento e contribuí para as decisões de negócios. Juntos, construímos vários produtos, incluindo a Viral, um SaaS B2B que ajudou os proprietários de e-commerce a encontrar e gerenciar influenciadores, automatizar cupons e rastrear vendas de campanhas.
+Migrei o e-commerce Seguidores do Shopify para uma solução Laravel personalizada e automatizei grande parte do fluxo de vendas. Isso me levou a me tornar sócio. Trabalhamos juntos por quase 9 anos: meu parceiro cuidava das vendas, enquanto eu cuidava do desenvolvimento e contribuía para as decisões de negócios. Nesse período, introduzi estratégias de upselling e cross-selling e campanhas de marketing automatizadas que ajudaram a quase dobrar o faturamento. Também construímos vários produtos juntos. Um deles foi a Viral, um SaaS B2B que ajudou os proprietários de e-commerce a encontrar e gerenciar influenciadores, automatizar cupons e rastrear vendas de campanhas.
 
 Desde junho de 2025, sou o founding engineer na Kuest, construindo uma infraestrutura open-source white-label para mercados de previsão. Ajudei a moldar sua arquitetura e integração para que usuários não técnicos pudessem lançar seu próprio mercado em menos de 15 minutos. Também apoiei o fundador em reuniões com investidores, traduzindo entre inglês e português e explicando detalhes técnicos.
 
 Minha experiência técnica inclui 9 anos com a Laravel e seu ecossistema, 7 anos com Vue.js e 5 anos com React, Next.js e TypeScript, além de 7 anos usando Docker e 3 usando Kubernetes em produção.
 
-Fluente em inglês (C1).
+Moro no Brasil (UTC−3). Fluente em inglês (C1).
 
 [Veja minhas contribuições para a Kuest](https://github.com/search?q=repo%3Akuest%2Fprediction-market+author%3Aibrunotome&type=commits&s=author-date&o=desc)
 
